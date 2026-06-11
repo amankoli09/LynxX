@@ -180,7 +180,7 @@ stellar-connect-wallet/
 
 ## 🌐 Live Demo
 
-> Deployed at: **[your-deployment-link-here]**
+> Deployed at: **https://stellar-connect-wallet-rust.vercel.app/**
 
 ---
 
