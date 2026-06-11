@@ -1,9 +1,9 @@
 
 <h1 align="center">✦ StellarFlow</h1>
 
-<h3>A non-custodial XLM payment dApp built on the Stellar Testnet</h3>
+<h3 align="center">A non-custodial XLM payment dApp built on the Stellar Testnet</h3>
 
-<p>
+<p align="center">
   <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react" alt="React"/></a>
   <a href="https://stellar.org"><img src="https://img.shields.io/badge/Stellar_SDK-latest-000000?style=flat-square&logo=stellar" alt="Stellar SDK"/></a>
   <a href="https://www.freighter.app"><img src="https://img.shields.io/badge/Freighter_API-v6-7B5EA7?style=flat-square" alt="Freighter API"/></a>
