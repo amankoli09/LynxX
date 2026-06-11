@@ -1,13 +1,15 @@
 
-# ✦ StellarFlow
+<h1>✦ StellarFlow</h1>
 
-### A non-custodial XLM payment dApp built on the Stellar Testnet
+<h3>A non-custodial XLM payment dApp built on the Stellar Testnet</h3>
 
-[![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)](https://react.dev)
-[![Stellar SDK](https://img.shields.io/badge/Stellar_SDK-latest-000000?style=flat-square&logo=stellar)](https://stellar.org)
-[![Freighter API](https://img.shields.io/badge/Freighter_API-v6-7B5EA7?style=flat-square)](https://www.freighter.app)
-[![Network](https://img.shields.io/badge/Network-Testnet-orange?style=flat-square)](https://horizon-testnet.stellar.org)
-[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](LICENSE)
+<p>
+  <a href="https://react.dev"><img src="https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react" alt="React"/></a>
+  <a href="https://stellar.org"><img src="https://img.shields.io/badge/Stellar_SDK-latest-000000?style=flat-square&logo=stellar" alt="Stellar SDK"/></a>
+  <a href="https://www.freighter.app"><img src="https://img.shields.io/badge/Freighter_API-v6-7B5EA7?style=flat-square" alt="Freighter API"/></a>
+  <a href="https://horizon-testnet.stellar.org"><img src="https://img.shields.io/badge/Network-Testnet-orange?style=flat-square" alt="Network"/></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-green?style=flat-square" alt="License"/></a>
+</p>
 
 </div>
 
@@ -92,8 +94,8 @@ Before running locally, make sure you have:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/stellar-connect-wallet.git
-cd stellar-connect-wallet/stellar-connect-wallet
+git clone https://github.com/amankoli09/Stellar-Connect-Wallet.git
+cd Stellar-Connect-Wallet
 ```
 
 ### 2. Install Dependencies
