@@ -1,5 +1,5 @@
 
-<h1>✦ StellarFlow</h1>
+<h1 align="center">✦ StellarFlow</h1>
 
 <h3>A non-custodial XLM payment dApp built on the Stellar Testnet</h3>
 
