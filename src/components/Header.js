@@ -1,5 +1,7 @@
 import { useState } from "react";
 import LightRays from "./LightRays";
+import Terminal from "./Terminal";
+import Crowdfund from "./Crowdfund";
 import { connectWallet, fetchBalance, sendPayment } from "./Freighter";
 
 /* ── SVG Icons ── */
@@ -133,6 +135,14 @@ function Header() {
             setStatus("error");
             setErrorMsg(e?.message || "Transaction failed. Please try again.");
         } finally { setIsSending(false); }
+    };
+
+    const refreshBalance = async () => {
+        if (!address) return;
+        try {
+            const bal = await fetchBalance(address);
+            setBalance(Number(bal).toFixed(2));
+        } catch (e) { console.warn("balance refresh failed", e); }
     };
 
     const short = addr => addr ? `${addr.slice(0,8)}...${addr.slice(-8)}` : "";
@@ -276,6 +286,31 @@ function Header() {
                 </div>
             </section>
 
+            {/* ── Terminal Demo ── */}
+            <section className="lp-terminal" id="terminal">
+                <div className="lp-terminal-inner">
+                    <div className="lp-section-eyebrow">Live demo</div>
+                    <h2 className="lp-section-title">See it in action</h2>
+                    <Terminal />
+                </div>
+            </section>
+
+            {/* ── Live On-chain Campaign ── */}
+            <section className="lp-campaign" id="campaign">
+                <div className="lp-campaign-inner">
+                    <div className="lp-campaign-copy">
+                        <div className="lp-section-eyebrow">Powered by Soroban</div>
+                        <h2 className="lp-section-title">A live crowdfunding campaign, fully on-chain</h2>
+                        <p className="lp-campaign-text">
+                            Every donation is a real Soroban smart-contract call on Stellar Testnet —
+                            funds move trustlessly into the contract, progress updates in real time
+                            from on-chain events, and the beneficiary withdraws directly. No backend, no custodian.
+                        </p>
+                    </div>
+                    <Crowdfund address={null} />
+                </div>
+            </section>
+
             {/* ── CTA ── */}
             <section className="lp-cta" id="cta">
                 <div className="lp-cta-card">
@@ -410,6 +445,9 @@ function Header() {
                             )}
                         </div>
                     )}
+
+                    {/* On-chain crowdfunding via the deployed Soroban contract */}
+                    <Crowdfund address={address} onDonated={refreshBalance} />
                 </div>
             </div>
         </div>
