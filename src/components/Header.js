@@ -1,25 +1,16 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LightRays from "./LightRays";
 import Terminal from "./Terminal";
 import Crowdfund from "./Crowdfund";
+import Reveal from "./Reveal";
+import Counter from "./Counter";
+import FAQ from "./FAQ";
 import { connectWallet, fetchBalance, sendPayment } from "./Freighter";
 
 /* ── SVG Icons ── */
-const WalletIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/>
-        <path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
-        <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
-    </svg>
-);
 const SendIcon = () => (
     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
-    </svg>
-);
-const StarIcon = () => (
-    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" stroke="none">
-        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
     </svg>
 );
 const ZapIcon = () => (
@@ -59,6 +50,27 @@ const AlertIcon = () => (
         <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
 );
+const LayersIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+    </svg>
+);
+const KeyIcon = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+    </svg>
+);
+const ArrowRightIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    </svg>
+);
+const TwitterIcon = () => (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 1.2h3.7l-8 9.1L24 22.8h-7.4l-5.8-7.5-6.6 7.5H.5l8.5-9.7L0 1.2h7.6l5.2 6.9zM17.6 20.6h2L6.5 3.3H4.3z"/></svg>
+);
+const GithubIcon = () => (
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.4.5 0 5.9 0 12.5c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.3-1.8-1.3-1.8-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2 0-.4-.5-1.6.2-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.7 1.6.2 2.8.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 24 12.5C24 5.9 18.6.5 12 .5z"/></svg>
+);
 
 function Header() {
     const [address, setAddress]     = useState("");
@@ -71,6 +83,14 @@ function Header() {
     const [errorMsg, setErrorMsg]   = useState("");
     const [isConnecting, setIsConnecting] = useState(false);
     const [isSending, setIsSending]       = useState(false);
+    const [scrolled, setScrolled]         = useState(false);
+
+    // Sticky-nav: add a solid background once the user scrolls past the hero top.
+    useEffect(() => {
+        const onScroll = () => setScrolled(window.scrollY > 24);
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => window.removeEventListener("scroll", onScroll);
+    }, []);
 
     // Load history from localStorage for a given wallet address
     const loadHistory = (pk) => {
@@ -158,6 +178,27 @@ function Header() {
     ════════════════════ */
     if (!address) return (
         <>
+            {/* Decorative background orbs */}
+            <div className="lp-orb lp-orb-1" />
+            <div className="lp-orb lp-orb-2" />
+
+            {/* ── Sticky Glass Nav ── */}
+            <nav className={`lp-nav ${scrolled ? "lp-nav-scrolled" : ""}`}>
+                <div className="lp-nav-brand">
+                    <span className="lp-nav-logo-dot" />
+                    <span className="lp-nav-wordmark">StellarFlow</span>
+                </div>
+                <div className="lp-nav-links">
+                    <span className="lp-nav-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
+                    <span className="lp-nav-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
+                    <span className="lp-nav-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })}>Crowdfund</span>
+                    <span className="lp-nav-link" onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}>FAQ</span>
+                </div>
+                <button id="btn-connect-nav" className="btn btn-glass-primary" onClick={handleConnect} disabled={isConnecting} style={{ padding: "10px 22px", fontSize: "0.85rem" }}>
+                    {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Connect <ArrowRightIcon /></>}
+                </button>
+            </nav>
+
             {/* ── Hero Section ── */}
             <section className="lp-hero-section">
 
@@ -176,87 +217,120 @@ function Header() {
                     saturation={0.8}
                 />
 
-                {/* Glassmorphism Nav */}
-                <nav className="lp-nav">
-                    <div className="lp-nav-brand">
-                        <span className="lp-nav-wordmark">StellarFlow</span>
-                    </div>
-                    <div className="lp-nav-links">
-                        <span className="lp-nav-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
-                        <span className="lp-nav-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
-                        <span className="lp-nav-link" onClick={() => document.getElementById('cta')?.scrollIntoView({ behavior: 'smooth' })}>Get started</span>
-                    </div>
-                    <button id="btn-connect-nav" className="btn btn-glass-primary" onClick={handleConnect} disabled={isConnecting} style={{ padding: "10px 22px", fontSize: "0.85rem" }}>
-                        {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Connect</>}
-                    </button>
-                </nav>
-
                 {/* Hero Copy */}
                 <div className="lp-hero-content">
                     <div className="lp-hero-pill">
                         <span className="hero-pill-dot"></span>
-                        Live on Stellar Testnet
+                        Live on Stellar Testnet · Soroban-powered
                     </div>
                     <h1 className="lp-hero-title">
-                        Send XLM<br />
-                        <span className="lp-hero-title-dim">at the speed of light</span>
+                        Send money<br />
+                        <span className="lp-hero-title-grad">at the speed of light</span>
                     </h1>
                     <p className="lp-hero-sub">
-                        StellarFlow is a non-custodial payment dApp built on the Stellar blockchain.
-                        Connect your Freighter wallet and send XLM anywhere, instantly.
+                        StellarFlow is a non-custodial payment dApp on the Stellar blockchain.
+                        Connect Freighter, send XLM anywhere in seconds, and fund campaigns
+                        through real on-chain smart contracts.
                     </p>
                     <div className="lp-hero-actions">
                         <button id="btn-connect-hero" className="btn btn-glass-primary btn-lg" onClick={handleConnect} disabled={isConnecting}>
-                            {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Get started</>}
+                            {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Launch app <ArrowRightIcon /></>}
                         </button>
-                        <button className="btn btn-glass-secondary btn-lg">Learn more</button>
+                        <button className="btn btn-glass-secondary btn-lg" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</button>
                     </div>
-                </div>
+                    <div className="lp-hero-trust">
+                        <span className="lp-hero-trust-dot" /> No sign-up
+                        <span className="lp-hero-trust-dot" /> Your keys, your coins
+                        <span className="lp-hero-trust-dot" /> Free on Testnet
+                    </div>
 
-                {/* Stats bar */}
-                <div className="lp-stats-bar">
-                    <div className="lp-stats-inner">
-                        <div className="lp-stat-item">
-                            <div className="lp-stat-num">~5s</div>
-                            <div className="lp-stat-lbl">Settlement Time</div>
+                    {/* Floating app preview */}
+                    <Reveal className="hero-showcase" delay={120}>
+                        <div className="showcase-glow" />
+                        <div className="app-preview">
+                            <div className="app-preview-bar">
+                                <span className="app-preview-dot ap-red" />
+                                <span className="app-preview-dot ap-yellow" />
+                                <span className="app-preview-dot ap-green" />
+                                <span className="app-preview-url">app.stellarflow.xyz</span>
+                            </div>
+                            <div className="app-preview-body">
+                                <div className="ap-balance">
+                                    <span className="ap-balance-lbl">Total Balance</span>
+                                    <div className="ap-balance-amt">10,000.00 <span>XLM</span></div>
+                                    <span className="ap-balance-chg">▲ 2.4% this week</span>
+                                </div>
+                                <div className="ap-actions">
+                                    <div className="ap-btn ap-btn-primary"><SendIcon /> Send</div>
+                                    <div className="ap-btn">Receive</div>
+                                </div>
+                                <div className="ap-tx-list">
+                                    <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Sent XLM</b><small>To GDX2…9F1A</small></div><span className="ap-tx-amt ap-amt-out">-250.00</span></div>
+                                    <div className="ap-tx"><span className="ap-tx-ic ap-in">↓</span><div className="ap-tx-info"><b>Received</b><small>From GBN4…K7Q2</small></div><span className="ap-tx-amt ap-amt-in">+1,200.00</span></div>
+                                    <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Donation</b><small>StellarFund</small></div><span className="ap-tx-amt ap-amt-out">-50.00</span></div>
+                                </div>
+                            </div>
                         </div>
-                        <div className="lp-stat-item">
-                            <div className="lp-stat-num">$0.00001</div>
-                            <div className="lp-stat-lbl">Per Transaction</div>
-                        </div>
-                        <div className="lp-stat-item">
-                            <div className="lp-stat-num">100%</div>
-                            <div className="lp-stat-lbl">Non-Custodial</div>
-                        </div>
-                        <div className="lp-stat-item">
-                            <div className="lp-stat-num">Testnet</div>
-                            <div className="lp-stat-lbl">Network</div>
-                        </div>
-                    </div>
+                        <div className="float-chip float-chip-1"><CheckIcon /> Confirmed in 4.2s</div>
+                        <div className="float-chip float-chip-2">Network fee · $0.00001</div>
+                    </Reveal>
                 </div>
             </section>
 
-            {/* ── Features ── */}
+            {/* ── Logo / tech marquee ── */}
+            <div className="lp-marquee">
+                <div className="lp-marquee-track">
+                    {[...Array(2)].map((_, dup) => (
+                        <div className="lp-marquee-group" key={dup}>
+                            {["Stellar", "Soroban", "Freighter", "Horizon RPC", "Rust", "React", "Testnet", "Stellar SDK"].map((t) => (
+                                <span className="lp-marquee-item" key={t}><span className="lp-marquee-star">✦</span>{t}</span>
+                            ))}
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* ── Features (bento) ── */}
             <section className="lp-features" id="features">
                 <div className="lp-section-inner">
-                    <div className="lp-section-eyebrow">Why StellarFlow</div>
-                    <h2 className="lp-section-title">Everything you need<br />to move money fast</h2>
-                    <div className="lp-features-grid">
-                        <div className="lp-feature-card">
-                            <div className="lp-feature-icon lp-feature-icon-purple"><ZapIcon /></div>
-                            <div className="lp-feature-title">Instant Finality</div>
-                            <div className="lp-feature-desc">Stellar settles transactions in under 5 seconds — no waiting, no uncertainty. Your payment lands instantly.</div>
-                        </div>
-                        <div className="lp-feature-card">
-                            <div className="lp-feature-icon lp-feature-icon-blue"><ShieldIcon /></div>
-                            <div className="lp-feature-title">Non-Custodial</div>
-                            <div className="lp-feature-desc">Your keys, your coins. StellarFlow never holds or controls your funds. You sign every transaction directly from Freighter.</div>
-                        </div>
-                        <div className="lp-feature-card">
-                            <div className="lp-feature-icon lp-feature-icon-green"><GlobeIcon /></div>
-                            <div className="lp-feature-title">Near-Zero Fees</div>
-                            <div className="lp-feature-desc">Send XLM for just $0.00001 per transaction. Stellar's efficient consensus makes cross-border payments truly affordable.</div>
-                        </div>
+                    <Reveal>
+                        <div className="lp-section-eyebrow">Why StellarFlow</div>
+                        <h2 className="lp-section-title">Everything you need<br />to move money fast</h2>
+                    </Reveal>
+                    <div className="lp-bento">
+                        <Reveal className="bento-card bento-lg">
+                            <div className="lp-feature-icon"><ZapIcon /></div>
+                            <div className="lp-feature-title">Instant finality</div>
+                            <div className="lp-feature-desc">Stellar reaches consensus in about 5 seconds, so your payment is final almost instantly — no block-confirmation waiting, no uncertainty.</div>
+                            <div className="bento-visual">
+                                <div className="bento-speed">
+                                    <span className="bento-speed-bar" style={{ animationDelay: "0s" }} />
+                                    <span className="bento-speed-bar" style={{ animationDelay: "0.15s" }} />
+                                    <span className="bento-speed-bar" style={{ animationDelay: "0.3s" }} />
+                                    <span className="bento-speed-num"><Counter to={5} decimals={1} suffix="s" /></span>
+                                </div>
+                            </div>
+                        </Reveal>
+                        <Reveal className="bento-card" delay={80}>
+                            <div className="lp-feature-icon"><KeyIcon /></div>
+                            <div className="lp-feature-title">Non-custodial</div>
+                            <div className="lp-feature-desc">Your keys, your coins. You sign every transaction in Freighter — we never touch your funds.</div>
+                        </Reveal>
+                        <Reveal className="bento-card" delay={160}>
+                            <div className="lp-feature-icon"><GlobeIcon /></div>
+                            <div className="lp-feature-title">Near-zero fees</div>
+                            <div className="lp-feature-desc">Send XLM for ~$0.00001. Cross-border payments that actually make sense.</div>
+                        </Reveal>
+                        <Reveal className="bento-card bento-wide" delay={80}>
+                            <div className="lp-feature-icon"><LayersIcon /></div>
+                            <div className="lp-feature-title">Real Soroban smart contracts</div>
+                            <div className="lp-feature-desc">More than payments — StellarFlow ships a live crowdfunding contract deployed on Testnet, with on-chain donations, progress and events.</div>
+                        </Reveal>
+                        <Reveal className="bento-card" delay={160}>
+                            <div className="lp-feature-icon"><ShieldIcon /></div>
+                            <div className="lp-feature-title">Audited primitives</div>
+                            <div className="lp-feature-desc">Built on Stellar's battle-tested SDK and the native token interface.</div>
+                        </Reveal>
                     </div>
                 </div>
             </section>
@@ -264,24 +338,27 @@ function Header() {
             {/* ── How it Works ── */}
             <section className="lp-how" id="how-it-works">
                 <div className="lp-section-inner">
-                    <div className="lp-section-eyebrow">How it works</div>
-                    <h2 className="lp-section-title">Three simple steps</h2>
+                    <Reveal>
+                        <div className="lp-section-eyebrow">How it works</div>
+                        <h2 className="lp-section-title">Three simple steps</h2>
+                    </Reveal>
                     <div className="lp-steps-grid">
-                        <div className="lp-step">
+                        <div className="lp-steps-line" />
+                        <Reveal className="lp-step">
                             <div className="lp-step-num">1</div>
                             <div className="lp-step-title">Install Freighter</div>
                             <div className="lp-step-desc">Download the Freighter browser extension and create or import your Stellar wallet. Switch to Testnet mode.</div>
-                        </div>
-                        <div className="lp-step">
+                        </Reveal>
+                        <Reveal className="lp-step" delay={120}>
                             <div className="lp-step-num">2</div>
                             <div className="lp-step-title">Connect your wallet</div>
-                            <div className="lp-step-desc">Click "Get started" and approve the connection request in Freighter. Your balance loads automatically.</div>
-                        </div>
-                        <div className="lp-step">
+                            <div className="lp-step-desc">Click "Launch app" and approve the connection request in Freighter. Your balance loads automatically.</div>
+                        </Reveal>
+                        <Reveal className="lp-step" delay={240}>
                             <div className="lp-step-num">3</div>
-                            <div className="lp-step-title">Send XLM</div>
-                            <div className="lp-step-desc">Enter a recipient address and amount, sign the transaction in Freighter, and watch it settle in seconds.</div>
-                        </div>
+                            <div className="lp-step-title">Send &amp; fund</div>
+                            <div className="lp-step-desc">Send XLM to any address or donate to the on-chain campaign — sign in Freighter and watch it settle in seconds.</div>
+                        </Reveal>
                     </div>
                 </div>
             </section>
@@ -289,16 +366,18 @@ function Header() {
             {/* ── Terminal Demo ── */}
             <section className="lp-terminal" id="terminal">
                 <div className="lp-terminal-inner">
-                    <div className="lp-section-eyebrow">Live demo</div>
-                    <h2 className="lp-section-title">See it in action</h2>
-                    <Terminal />
+                    <Reveal>
+                        <div className="lp-section-eyebrow">Live demo</div>
+                        <h2 className="lp-section-title">See it in action</h2>
+                    </Reveal>
+                    <Reveal delay={120}><Terminal /></Reveal>
                 </div>
             </section>
 
             {/* ── Live On-chain Campaign ── */}
             <section className="lp-campaign" id="campaign">
                 <div className="lp-campaign-inner">
-                    <div className="lp-campaign-copy">
+                    <Reveal className="lp-campaign-copy">
                         <div className="lp-section-eyebrow">Powered by Soroban</div>
                         <h2 className="lp-section-title">A live crowdfunding campaign, fully on-chain</h2>
                         <p className="lp-campaign-text">
@@ -306,28 +385,99 @@ function Header() {
                             funds move trustlessly into the contract, progress updates in real time
                             from on-chain events, and the beneficiary withdraws directly. No backend, no custodian.
                         </p>
-                    </div>
-                    <Crowdfund address={null} />
+                        <div className="lp-campaign-points">
+                            <div className="lp-campaign-point"><CheckIcon /> Donations are signed by you, settled on-chain</div>
+                            <div className="lp-campaign-point"><CheckIcon /> Progress streams live from contract events</div>
+                            <div className="lp-campaign-point"><CheckIcon /> Verifiable on the public ledger</div>
+                        </div>
+                    </Reveal>
+                    <Reveal delay={120}><Crowdfund address={null} /></Reveal>
+                </div>
+            </section>
+
+            {/* ── Metrics band ── */}
+            <section className="lp-metrics">
+                <div className="lp-section-inner lp-metrics-grid">
+                    <Reveal className="metric">
+                        <div className="metric-num"><Counter to={5} decimals={1} prefix="~" suffix="s" /></div>
+                        <div className="metric-lbl">Avg. settlement</div>
+                    </Reveal>
+                    <Reveal className="metric" delay={80}>
+                        <div className="metric-num"><Counter to={0.00001} decimals={5} prefix="$" /></div>
+                        <div className="metric-lbl">Network fee</div>
+                    </Reveal>
+                    <Reveal className="metric" delay={160}>
+                        <div className="metric-num"><Counter to={180} suffix="+" /></div>
+                        <div className="metric-lbl">Countries reachable</div>
+                    </Reveal>
+                    <Reveal className="metric" delay={240}>
+                        <div className="metric-num"><Counter to={99.9} decimals={1} suffix="%" /></div>
+                        <div className="metric-lbl">Network uptime</div>
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* ── FAQ ── */}
+            <section className="lp-faq" id="faq">
+                <div className="lp-section-inner lp-faq-inner">
+                    <Reveal className="lp-faq-head">
+                        <div className="lp-section-eyebrow">FAQ</div>
+                        <h2 className="lp-section-title">Questions, answered</h2>
+                        <p className="lp-faq-sub">Everything you might want to know before you connect.</p>
+                    </Reveal>
+                    <Reveal delay={120}><FAQ /></Reveal>
                 </div>
             </section>
 
             {/* ── CTA ── */}
             <section className="lp-cta" id="cta">
-                <div className="lp-cta-card">
+                <Reveal className="lp-cta-card">
                     <h2 className="lp-cta-title">Ready to send your first payment?</h2>
                     <p className="lp-cta-sub">Connect your Freighter wallet and experience the speed of Stellar — no sign-up, no custodian, no fees.</p>
                     <button id="btn-connect-cta" className="btn btn-gradient btn-lg" onClick={handleConnect} disabled={isConnecting}>
-                        {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Connect Wallet</>}
+                        {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Connect Wallet <ArrowRightIcon /></>}
                     </button>
-                </div>
+                </Reveal>
             </section>
 
             {/* ── Footer ── */}
             <footer className="lp-footer">
-                <div className="lp-footer-brand">
-                    <span className="lp-nav-wordmark" style={{ fontSize: '0.88rem' }}>StellarFlow</span>
+                <div className="lp-footer-top">
+                    <div className="lp-footer-brand-col">
+                        <div className="lp-footer-brand">
+                            <span className="lp-nav-logo-dot" />
+                            <span className="lp-nav-wordmark" style={{ fontSize: '1rem' }}>StellarFlow</span>
+                        </div>
+                        <p className="lp-footer-tagline">Non-custodial payments &amp; on-chain crowdfunding, built on Stellar.</p>
+                        <div className="lp-footer-socials">
+                            <a href="https://github.com" target="_blank" rel="noreferrer" className="lp-footer-social"><GithubIcon /></a>
+                            <a href="https://twitter.com" target="_blank" rel="noreferrer" className="lp-footer-social"><TwitterIcon /></a>
+                        </div>
+                    </div>
+                    <div className="lp-footer-links-cols">
+                        <div className="lp-footer-col">
+                            <span className="lp-footer-col-title">Product</span>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })}>Crowdfund</span>
+                        </div>
+                        <div className="lp-footer-col">
+                            <span className="lp-footer-col-title">Resources</span>
+                            <a className="lp-footer-link" href="https://developers.stellar.org" target="_blank" rel="noreferrer">Stellar Docs</a>
+                            <a className="lp-footer-link" href="https://www.freighter.app" target="_blank" rel="noreferrer">Freighter Wallet</a>
+                            <a className="lp-footer-link" href="https://stellar.expert/explorer/testnet" target="_blank" rel="noreferrer">Testnet Explorer</a>
+                        </div>
+                        <div className="lp-footer-col">
+                            <span className="lp-footer-col-title">Get started</span>
+                            <span className="lp-footer-link" onClick={handleConnect}>Connect wallet</span>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}>FAQ</span>
+                        </div>
+                    </div>
                 </div>
-                <span className="lp-footer-text">Built on Stellar Testnet — for demonstration purposes only</span>
+                <div className="lp-footer-bottom">
+                    <span className="lp-footer-text">© 2026 StellarFlow — built on Stellar Testnet for demonstration purposes.</span>
+                    <span className="lp-footer-text">Made with Soroban &amp; React</span>
+                </div>
             </footer>
         </>
     );

@@ -5,7 +5,7 @@ const server = new Horizon.Server("https://horizon-testnet.stellar.org");
 
 export const connectWallet = async () => {
     try {
-        const { isAllowed, error: allowError } = await setAllowed();
+        const { error: allowError } = await setAllowed();
         if (allowError) {
             console.error("setAllowed error:", allowError);
         }
