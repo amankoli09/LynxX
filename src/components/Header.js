@@ -8,6 +8,7 @@ import FAQ from "./FAQ";
 import Contracts from "./Contracts";
 import Roadmap from "./Roadmap";
 import Testimonials from "./Testimonials";
+import coinsImg from "../media/landphoto.png";
 import { connectWallet, fetchBalance, sendPayment } from "./Freighter";
 
 /* ── SVG Icons ── */
@@ -285,7 +286,7 @@ function Header() {
                         {coinsOk ? (
                             <img
                                 className="hero-coins"
-                                src={process.env.PUBLIC_URL + "/coins.png"}
+                                src={coinsImg}
                                 alt="Floating crypto coins"
                                 onError={() => setCoinsOk(false)}
                             />
