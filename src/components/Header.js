@@ -84,6 +84,7 @@ function Header() {
     const [isConnecting, setIsConnecting] = useState(false);
     const [isSending, setIsSending]       = useState(false);
     const [scrolled, setScrolled]         = useState(false);
+    const [walletPrompt, setWalletPrompt] = useState(null); // { title, message, showInstall }
 
     // Sticky-nav: add a solid background once the user scrolls past the hero top.
     useEffect(() => {
@@ -117,7 +118,13 @@ function Header() {
             // Restore this wallet's history from localStorage
             setTxHistory(loadHistory(pk));
         } catch (e) {
-            alert(e.message || "Failed to connect wallet");
+            // Show a friendly in-app modal instead of a raw alert. Missing
+            // wallet → offer the install link; anything else → explain & retry.
+            setWalletPrompt({
+                title: e?.code === "NotInstalled" ? "Wallet not detected" : "Couldn't connect",
+                message: e?.message || "Failed to connect wallet. Please try again.",
+                showInstall: e?.code === "NotInstalled",
+            });
         } finally { setIsConnecting(false); }
     };
 
@@ -181,6 +188,28 @@ function Header() {
             {/* Decorative background orbs */}
             <div className="lp-orb lp-orb-1" />
             <div className="lp-orb lp-orb-2" />
+
+            {/* ── Wallet prompt modal (missing extension / connect error) ── */}
+            {walletPrompt && (
+                <div className="wallet-modal-overlay" onClick={() => setWalletPrompt(null)}>
+                    <div className="wallet-modal" onClick={(e) => e.stopPropagation()}>
+                        <button className="wallet-modal-close" onClick={() => setWalletPrompt(null)} aria-label="Close">×</button>
+                        <div className="wallet-modal-icon"><KeyIcon /></div>
+                        <h3 className="wallet-modal-title">{walletPrompt.title}</h3>
+                        <p className="wallet-modal-text">{walletPrompt.message}</p>
+                        <div className="wallet-modal-actions">
+                            {walletPrompt.showInstall && (
+                                <a className="btn btn-gradient" href="https://www.freighter.app/" target="_blank" rel="noreferrer">
+                                    Install Freighter <ArrowRightIcon />
+                                </a>
+                            )}
+                            <button className="btn btn-glass-secondary" onClick={() => setWalletPrompt(null)}>
+                                {walletPrompt.showInstall ? "Maybe later" : "Got it"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* ── Sticky Glass Nav ── */}
             <nav className={`lp-nav ${scrolled ? "lp-nav-scrolled" : ""}`}>

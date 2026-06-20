@@ -1,22 +1,67 @@
-import { requestAccess, signTransaction, setAllowed } from "@stellar/freighter-api";
+import { isConnected, requestAccess, signTransaction, setAllowed } from "@stellar/freighter-api";
 import { Horizon, TransactionBuilder, Networks, Asset, Operation } from "@stellar/stellar-sdk";
 
 const server = new Horizon.Server("https://horizon-testnet.stellar.org");
 
-export const connectWallet = async () => {
-    try {
-        const { error: allowError } = await setAllowed();
-        if (allowError) {
-            console.error("setAllowed error:", allowError);
-        }
+/* A typed wallet error so the UI can branch on `code` (e.g. show an install
+   modal vs. a "rejected" toast) instead of a generic alert. */
+export class WalletError extends Error {
+    constructor(code, message) {
+        super(message);
+        this.code = code;
+    }
+}
 
+/* True only on a touch/mobile browser, where Freighter (a desktop extension)
+   cannot run. Used to tailor the "wallet not found" message. */
+export const isMobileBrowser = () =>
+    typeof navigator !== "undefined" &&
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || "");
+
+/* Never let a missing extension hang the UI: race detection against a timeout.
+   On mobile (no extension) the injected provider never answers. */
+const withTimeout = (promise, ms = 3000) =>
+    Promise.race([
+        promise,
+        new Promise((resolve) => setTimeout(() => resolve({ isConnected: false }), ms)),
+    ]);
+
+/* Whether the Freighter extension is installed & reachable in this browser. */
+export const isFreighterInstalled = async () => {
+    try {
+        const res = await withTimeout(isConnected(), 3000);
+        return Boolean(res?.isConnected);
+    } catch {
+        return false;
+    }
+};
+
+export const connectWallet = async () => {
+    // Gate on detection first so we fail fast with a helpful message instead of
+    // an infinite "Connecting..." spinner on devices without the extension.
+    const installed = await isFreighterInstalled();
+    if (!installed) {
+        throw new WalletError(
+            "NotInstalled",
+            isMobileBrowser()
+                ? "Freighter is a desktop browser extension and isn't available on mobile. Open StellarFlow on a computer using Chrome, Brave, Firefox, or Edge with Freighter installed."
+                : "Freighter wallet not detected. Install the Freighter browser extension, switch it to Testnet, then try again."
+        );
+    }
+
+    try {
+        await setAllowed();
         const { address, error } = await requestAccess();
         if (error) {
-            throw new Error(error.message || "Failed to connect to Freighter");
+            throw new WalletError("Rejected", error.message || "Connection request was rejected in Freighter.");
+        }
+        if (!address) {
+            throw new WalletError("NoAddress", "Freighter did not return an address. Unlock the wallet and try again.");
         }
         return address;
-    } catch (error) {
-        throw new Error("Failed to connect to Freighter");
+    } catch (e) {
+        if (e instanceof WalletError) throw e;
+        throw new WalletError("ConnectFailed", e?.message || "Failed to connect to Freighter.");
     }
 };
 
