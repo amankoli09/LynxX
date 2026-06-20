@@ -5,7 +5,10 @@ html, body, #root { min-height: 100vh; }
 
 body {
   font-family: 'Inter', sans-serif;
-  background: #0c0c0e;
+  background:
+    radial-gradient(70% 60% at 100% 0%, #5b6cff 0%, #3b3ee0 26%, transparent 60%),
+    radial-gradient(60% 50% at 0% 100%, #4659ff 0%, transparent 55%),
+    #0a0b16;
   color: #fff;
   overflow-x: hidden;
 }
@@ -17,11 +20,15 @@ body {
 /* ── Hero wrapper – full viewport, dark, rays live inside ── */
 .lp-hero-section {
   position: relative;
-  width: 100%;
-  min-height: 100vh;
+  width: auto;
+  min-height: calc(100vh - 28px);
+  margin: 14px;
+  border-radius: 30px;
+  border: 1px solid rgba(130, 150, 255, 0.45);
+  box-shadow: 0 0 0 1px rgba(91, 108, 255, 0.2), 0 30px 90px rgba(20, 24, 80, 0.55);
   background:
-    radial-gradient(60% 50% at 88% 8%, rgba(61, 92, 255, 0.30) 0%, transparent 60%),
-    radial-gradient(50% 40% at 50% 100%, rgba(61, 92, 255, 0.18) 0%, transparent 70%),
+    radial-gradient(55% 45% at 84% 4%, rgba(90, 120, 255, 0.38) 0%, transparent 60%),
+    radial-gradient(45% 38% at 50% 102%, rgba(61, 92, 255, 0.16) 0%, transparent 70%),
     #06070d;
   display: flex;
   flex-direction: column;
@@ -1243,4 +1250,88 @@ body {
     z-index: 0;
     pointer-events: none;
     opacity: 0.7;
+}
+
+/* ════════════════ ChainFund-style framed hero ════════════════ */
+/* In-panel nav */
+.cf-nav {
+    position: relative; z-index: 10;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 26px 36px 0;
+}
+.cf-nav-brand { display: flex; align-items: center; gap: 10px; }
+.cf-nav-wordmark { font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+.cf-nav-pill {
+    display: flex; align-items: center; gap: 4px;
+    background: rgba(13, 16, 32, 0.7);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px; padding: 6px;
+    backdrop-filter: blur(12px);
+}
+.cf-nav-link {
+    font-size: 0.9rem; font-weight: 500; color: rgba(255,255,255,0.6);
+    padding: 9px 18px; border-radius: 10px; cursor: pointer;
+    transition: color 0.2s, background 0.2s;
+}
+.cf-nav-link:hover { color: #fff; }
+.cf-nav-active { color: #fff; background: rgba(91, 124, 255, 0.22); box-shadow: inset 0 0 0 1px rgba(106,141,255,0.3); }
+.cf-nav-cta {
+    font-family: 'Inter', sans-serif; font-size: 0.9rem; font-weight: 600;
+    color: #fff; cursor: pointer;
+    padding: 11px 22px; border-radius: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.18);
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+}
+.cf-nav-cta:hover:not(:disabled) { background: rgba(91,124,255,0.18); border-color: rgba(130,150,255,0.5); transform: translateY(-1px); }
+.cf-nav-cta:disabled { opacity: 0.6; cursor: default; }
+
+/* Hero body */
+.cf-hero {
+    position: relative; z-index: 5; flex: 1;
+    display: grid; grid-template-columns: 1fr 1fr; align-items: center;
+    gap: 30px; padding: 40px 48px 10px;
+}
+.cf-hero-copy { display: flex; flex-direction: column; align-items: flex-start; }
+.cf-eyebrow { font-size: 0.92rem; font-weight: 500; color: #8ea2ff; letter-spacing: 0.02em; margin-bottom: 22px; }
+.cf-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(2.6rem, 5.4vw, 4.6rem); font-weight: 700;
+    line-height: 1.04; letter-spacing: -0.02em; color: #fff; margin-bottom: 24px;
+}
+.cf-sub { font-size: 1.12rem; line-height: 1.6; color: rgba(255,255,255,0.62); margin-bottom: 34px; }
+.cf-cta { padding: 15px 30px; font-size: 0.98rem; border-radius: 12px; }
+
+/* Right visual */
+.cf-hero-visual { position: relative; min-height: 480px; display: flex; align-items: center; justify-content: center; }
+
+/* Bottom feature row */
+.cf-hero-features {
+    position: relative; z-index: 5;
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin: 18px 0 0;
+}
+.cf-hf { display: flex; align-items: flex-start; gap: 14px; padding: 28px 36px; }
+.cf-hf:not(:last-child) { border-right: 1px solid rgba(255,255,255,0.08); }
+.cf-hf-ic {
+    flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff; color: #0a0b16;
+}
+.cf-hf-ic svg { width: 18px; height: 18px; }
+.cf-hf-text b { display: block; font-size: 1rem; color: #fff; margin-bottom: 5px; font-weight: 600; }
+.cf-hf-text p { font-size: 0.85rem; line-height: 1.45; color: rgba(255,255,255,0.5); margin: 0; }
+
+@media (max-width: 960px) {
+    .lp-hero-section { margin: 8px; border-radius: 22px; min-height: calc(100vh - 16px); }
+    .cf-nav { padding: 18px 18px 0; flex-wrap: wrap; gap: 12px; }
+    .cf-nav-pill { display: none; }
+    .cf-hero { grid-template-columns: 1fr; text-align: center; padding: 30px 22px 0; gap: 10px; }
+    .cf-hero-copy { align-items: center; }
+    .cf-sub { text-align: center; }
+    .cf-hero-visual { min-height: 320px; }
+    .cf-hero-features { grid-template-columns: 1fr; }
+    .cf-hf:not(:last-child) { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); }
 }

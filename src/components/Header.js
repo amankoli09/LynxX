@@ -216,24 +216,7 @@ function Header() {
                 </div>
             )}
 
-            {/* ── Sticky Glass Nav ── */}
-            <nav className={`lp-nav ${scrolled ? "lp-nav-scrolled" : ""}`}>
-                <div className="lp-nav-brand">
-                    <span className="lp-nav-logo-dot" />
-                    <span className="lp-nav-wordmark">StellarFlow</span>
-                </div>
-                <div className="lp-nav-links">
-                    <span className="lp-nav-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
-                    <span className="lp-nav-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
-                    <span className="lp-nav-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })}>Crowdfund</span>
-                    <span className="lp-nav-link" onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}>FAQ</span>
-                </div>
-                <button id="btn-connect-nav" className="btn btn-glass-primary" onClick={handleConnect} disabled={isConnecting} style={{ padding: "10px 22px", fontSize: "0.85rem" }}>
-                    {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Connect <ArrowRightIcon /></>}
-                </button>
-            </nav>
-
-            {/* ── Hero Section ── */}
+            {/* ── Framed hero panel (ChainFund-style) ── */}
             <section className="lp-hero-section">
 
                 {/* Light Rays WebGL – spotlight beams down onto the coins on the right */}
@@ -251,40 +234,45 @@ function Header() {
                     saturation={1}
                 />
 
-                {/* Perspective grid floor (ChainFund look) */}
+                {/* Perspective grid floor */}
                 <div className="lp-hero-grid" />
 
-                {/* Hero — two columns: copy left, lit coins right */}
-                <div className="lp-hero-content lp-hero-two-col">
-                    <div className="lp-hero-copy">
-                        <div className="lp-hero-pill">
-                            <span className="hero-pill-dot"></span>
-                            Live on Stellar Testnet · Soroban-powered
-                        </div>
-                        <h1 className="lp-hero-title">
+                {/* In-panel nav */}
+                <nav className={`cf-nav ${scrolled ? "cf-nav-scrolled" : ""}`}>
+                    <div className="cf-nav-brand">
+                        <span className="lp-nav-logo-dot" />
+                        <span className="cf-nav-wordmark">StellarFlow</span>
+                    </div>
+                    <div className="cf-nav-pill">
+                        <span className="cf-nav-link cf-nav-active" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>Home</span>
+                        <span className="cf-nav-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
+                        <span className="cf-nav-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
+                        <span className="cf-nav-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })}>Crowdfund</span>
+                        <span className="cf-nav-link" onClick={() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' })}>FAQ</span>
+                    </div>
+                    <button id="btn-connect-nav" className="cf-nav-cta" onClick={handleConnect} disabled={isConnecting}>
+                        {isConnecting ? <><span className="spinner"></span> Connecting…</> : "Connect Wallet"}
+                    </button>
+                </nav>
+
+                {/* Hero — copy left, lit coins right */}
+                <div className="cf-hero">
+                    <div className="cf-hero-copy">
+                        <div className="cf-eyebrow">[ Live on Stellar Testnet ]</div>
+                        <h1 className="cf-title">
                             Send money<br />
-                            <span className="lp-hero-title-grad">at the speed of light</span>
+                            Beyond Borders
                         </h1>
-                        <p className="lp-hero-sub">
-                            StellarFlow is a non-custodial payment dApp on the Stellar blockchain.
-                            Connect Freighter, send XLM anywhere in seconds, and fund campaigns
-                            through real on-chain smart contracts.
+                        <p className="cf-sub">
+                            Non-custodial payments and on-chain<br />
+                            crowdfunding, powered by Stellar &amp; Soroban.
                         </p>
-                        <div className="lp-hero-actions">
-                            <button id="btn-connect-hero" className="btn btn-glass-primary btn-lg" onClick={handleConnect} disabled={isConnecting}>
-                                {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Launch app <ArrowRightIcon /></>}
-                            </button>
-                            <button className="btn btn-glass-secondary btn-lg" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</button>
-                        </div>
-                        <div className="lp-hero-trust">
-                            <span className="lp-hero-trust-dot" /> No sign-up
-                            <span className="lp-hero-trust-dot" /> Your keys, your coins
-                            <span className="lp-hero-trust-dot" /> Free on Testnet
-                        </div>
+                        <button id="btn-connect-hero" className="btn btn-glass-primary cf-cta" onClick={handleConnect} disabled={isConnecting}>
+                            {isConnecting ? <><span className="spinner"></span> Connecting…</> : <>Get Started <ArrowRightIcon /></>}
+                        </button>
                     </div>
 
-                    {/* Right visual — the spotlight lands here on the coins */}
-                    <Reveal className="lp-hero-visual" delay={120}>
+                    <Reveal className="cf-hero-visual" delay={120}>
                         <div className="hero-coins-glow" />
                         {coinsOk ? (
                             <img
@@ -311,17 +299,35 @@ function Header() {
                                         <div className="ap-btn ap-btn-primary"><SendIcon /> Send</div>
                                         <div className="ap-btn">Receive</div>
                                     </div>
-                                    <div className="ap-tx-list">
-                                        <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Sent XLM</b><small>To GDX2…9F1A</small></div><span className="ap-tx-amt ap-amt-out">-250.00</span></div>
-                                        <div className="ap-tx"><span className="ap-tx-ic ap-in">↓</span><div className="ap-tx-info"><b>Received</b><small>From GBN4…K7Q2</small></div><span className="ap-tx-amt ap-amt-in">+1,200.00</span></div>
-                                        <div className="ap-tx"><span className="ap-tx-ic ap-out">↑</span><div className="ap-tx-info"><b>Donation</b><small>StellarFund</small></div><span className="ap-tx-amt ap-amt-out">-50.00</span></div>
-                                    </div>
                                 </div>
                             </div>
                         )}
-                        <div className="float-chip float-chip-1"><CheckIcon /> Confirmed in 4.2s</div>
-                        <div className="float-chip float-chip-2">Network fee · $0.00001</div>
                     </Reveal>
+                </div>
+
+                {/* Bottom feature row */}
+                <div className="cf-hero-features">
+                    <div className="cf-hf">
+                        <span className="cf-hf-ic"><ZapIcon /></span>
+                        <div className="cf-hf-text">
+                            <b>Instant Settlement</b>
+                            <p>Payments finalize in about five seconds on Stellar</p>
+                        </div>
+                    </div>
+                    <div className="cf-hf">
+                        <span className="cf-hf-ic"><ShieldIcon /></span>
+                        <div className="cf-hf-text">
+                            <b>Non-Custodial</b>
+                            <p>Your keys, your coins — you sign every transaction</p>
+                        </div>
+                    </div>
+                    <div className="cf-hf">
+                        <span className="cf-hf-ic"><LayersIcon /></span>
+                        <div className="cf-hf-text">
+                            <b>On-Chain Crowdfunding</b>
+                            <p>Donate through real Soroban smart contracts</p>
+                        </div>
+                    </div>
                 </div>
             </section>
 
