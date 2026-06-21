@@ -328,7 +328,7 @@ stellar-connect-wallet/
 
 ## 🌐 Live Demo
 
-> **Live app:** https://stellar-connect-wallet-rust.vercel.app/
+> **Live app:** https://stellar-connect-wallet-rr5q.vercel.app/
 > **Demo video (1–2 min):** **[add link]**
 
 ---
