@@ -340,7 +340,10 @@ stellar-connect-wallet/
 
 The dApp is fully responsive across mobile, tablet, and desktop.
 
-> 📸 _Screenshot: mobile responsive UI_ — **[add image]**
+<img width="1457" height="778" alt="Screenshot 2026-06-21 at 9 13 14 PM" src="https://github.com/user-attachments/assets/bd251e29-2b71-420d-8ce7-46b8bd9f9fc9" />
+
+<img width="1457" height="778" alt="Screenshot 2026-06-21 at 9 13 35 PM" src="https://github.com/user-attachments/assets/63032cd8-7180-4d2e-a461-b63e343b5576" />
+
 
 ---
 
