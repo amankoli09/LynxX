@@ -559,7 +559,7 @@ function Header() {
                 <div className="lp-footer-top">
                     <div className="lp-footer-brand-col">
                         <div className="lp-footer-brand">
-                            <span className="lp-nav-logo-dot" />
+                            <img className="cf-nav-logo" src={logoImg} alt="StellarFlow logo" />
                             <span className="lp-nav-wordmark" style={{ fontSize: '1rem' }}>StellarFlow</span>
                         </div>
                         <p className="lp-footer-tagline">Non-custodial payments &amp; on-chain crowdfunding, built on Stellar.</p>
