@@ -191,7 +191,8 @@ Every push and pull request to `main` runs **[GitHub Actions](.github/workflows/
 ### 🌌 Landing Page — Light Rays Hero
 > Mouse-interactive WebGL background, glassmorphism nav, hero CTA
 
-<img width="1466" height="741" alt="Screenshot 2026-06-21 at 9 22 30 PM" src="https://github.com/user-attachments/assets/ca43827a-6c15-48fe-ae0e-85077fe12d7d" />
+<img width="1466" height="739" alt="Screenshot 2026-06-30 at 6 06 08 PM" src="https://github.com/user-attachments/assets/99033bd6-e46b-47d4-9b54-921a681ae2b1" />
+
 
 
 ### 🔌 Wallet Connected — Dashboard View
