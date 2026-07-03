@@ -657,10 +657,16 @@ body {
 
 /* Cards */
 .bento-card {
-    background: rgba(14, 15, 22, 0.6);
-    border: 1px solid rgba(255,255,255,0.05);
-    border-radius: 20px; padding: 24px;
-    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px; 
+    padding: 24px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+    transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
 }
 .bento-card-title { font-size: 1rem; font-weight: 600; color: #fff; }
 .mb-8 { margin-bottom: 8px; } .mb-12 { margin-bottom: 12px; } .mb-16 { margin-bottom: 16px; } .mb-20 { margin-bottom: 20px; } .mt-8 { margin-top: 8px; } .mt-12 { margin-top: 12px; } .mt-16 { margin-top: 16px; } .mt-20 { margin-top: 20px; } .mt-24 { margin-top: 24px; }
@@ -676,7 +682,7 @@ body {
 .bento-sparkline { margin: 0 -30px -10px; height: 100px; }
 .bento-sparkline svg { width: 100%; height: 100%; }
 .bento-timeframes { display: flex; gap: 16px; font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 10px; }
-.bento-timeframes span.active { background: rgba(77, 107, 255,0.2); color: #6a8dff; padding: 4px 10px; border-radius: 100px; font-weight: 600; }
+.bento-timeframes span.active { background: rgba(255, 255, 255, 0.1); color: #fff; padding: 4px 10px; border-radius: 100px; font-weight: 600; }
 
 .bento-address-box {
     background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 16px; border-radius: 12px; font-family: monospace; font-size: 0.9rem;
@@ -712,7 +718,7 @@ body {
 }
 .bento-qa-item:hover { background: rgba(255,255,255,0.05); color: #fff; transform: translateY(-2px); }
 .bento-qa-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
-.bento-qa-icon.blue { background: linear-gradient(135deg, #4d6bff, #3b5bdb); color: #fff; box-shadow: 0 4px 12px rgba(77,107,255,0.3); }
+.bento-qa-icon.blue { background: #fff; color: #000; box-shadow: 0 4px 12px rgba(255, 255, 255, 0.15); }
 .bento-qa-icon.outline { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.8); }
 
 .bento-send-card { padding: 24px; }
@@ -733,8 +739,8 @@ body {
 .bento-pill-prefix { background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; color: #fff; flex-shrink: 0; }
 .bento-usd-suffix { font-size: 0.75rem; color: rgba(255,255,255,0.4); flex-shrink: 0; padding-right: 4px; }
 
-.bento-submit-btn { width: 100%; background: #4d6bff; border: none; color: #fff; padding: 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; }
-.bento-submit-btn:hover:not(:disabled) { background: #3b5bdb; box-shadow: 0 4px 16px rgba(77,107,255,0.4); }
+.bento-submit-btn { width: 100%; background: #fff; border: none; color: #000; padding: 16px; border-radius: 12px; font-size: 0.95rem; font-weight: 600; display: flex; justify-content: center; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; }
+.bento-submit-btn:hover:not(:disabled) { background: #e0e0e0; box-shadow: 0 4px 16px rgba(255,255,255,0.2); }
 
 .bento-portfolio-body { display: flex; align-items: center; gap: 24px; }
 .bento-donut-wrap { position: relative; width: 130px; height: 130px; border-radius: 50%; padding: 12px; background: conic-gradient(#4d6bff 0% 100%, transparent 100%); }
@@ -945,25 +951,17 @@ body {
 .lp-bento {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 8px;
 }
-.bento-card {
-  position: relative; overflow: hidden;
-  background:
-    radial-gradient(120% 120% at 100% 100%, rgba(77, 107, 255, 0.10) 0%, transparent 45%),
-    #0b0d18;
-  border: 1px solid rgba(255,255,255,0.08);
-  border-radius: 20px; padding: 28px;
-  transition: transform 0.25s, border-color 0.25s, box-shadow 0.25s;
-}
+/* Deleted duplicated .bento-card since we unified it above */
 /* subtle dot-grid texture in the corner (ChainFund look) */
 .bento-card::after {
   content: ''; position: absolute; right: 16px; bottom: 16px; width: 140px; height: 90px;
-  background-image: radial-gradient(rgba(120, 145, 255, 0.28) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 1px);
   background-size: 14px 14px;
   -webkit-mask-image: radial-gradient(circle at bottom right, #000, transparent 70%);
   mask-image: radial-gradient(circle at bottom right, #000, transparent 70%);
   pointer-events: none;
 }
-.bento-card:hover { transform: translateY(-4px); border-color: rgba(106,141,255,0.45); box-shadow: 0 16px 44px rgba(20, 30, 90, 0.5); }
+.bento-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.25); box-shadow: 0 16px 44px rgba(0, 0, 0, 0.5); }
 .bento-lg { grid-row: span 2; display: flex; flex-direction: column; }
 .bento-wide { grid-column: span 2; }
 

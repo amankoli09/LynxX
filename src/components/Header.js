@@ -704,7 +704,7 @@ function Header() {
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Download size={20} /> Receive</a>
                     <a href="#" className={`bento-nav-item ${activeView === 'swap' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('swap'); }}><RefreshCw size={20} /> Swap</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Clock size={20} /> Activity</a>
-                    <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Users size={20} /> Contacts</a>
+
                     <a href="#" className={`bento-nav-item ${activeView === 'analytics' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('analytics'); }}><BarChart2 size={20} /> Analytics</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Settings size={20} /> Settings</a>
                 </nav>
@@ -765,29 +765,16 @@ function Header() {
                                 <svg viewBox="0 0 100 40" preserveAspectRatio="none">
                                     <defs>
                                         <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="rgba(77,107,255,0.4)" />
-                                            <stop offset="100%" stopColor="rgba(77,107,255,0)" />
+                                            <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+                                            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
                                         </linearGradient>
                                     </defs>
                                     <path d="M0,35 C10,25 20,40 30,20 C40,0 50,25 60,10 C70,0 80,20 90,5 L100,0 L100,40 L0,40 Z" fill="url(#sparklineGrad)" />
-                                    <path d="M0,35 C10,25 20,40 30,20 C40,0 50,25 60,10 C70,0 80,20 90,5 L100,0" fill="none" stroke="#4d6bff" strokeWidth="2.5" />
+                                    <path d="M0,35 C10,25 20,40 30,20 C40,0 50,25 60,10 C70,0 80,20 90,5 L100,0" fill="none" stroke="#ffffff" strokeWidth="2.5" />
                                 </svg>
                             </div>
                             <div className="bento-timeframes">
                                 <span className="active">1D</span><span>7D</span><span>30D</span><span>1Y</span><span>All</span>
-                            </div>
-                        </div>
-
-                        {/* Wallet Address */}
-                        <div className="bento-card bento-address-card">
-                            <div className="bento-card-title mb-12">Wallet Address</div>
-                            <div className="bento-address-box">
-                                {address.slice(0, 14)}...{address.slice(-10)} <CopyIcon size={16} />
-                            </div>
-                            <div className="bento-address-actions">
-                                <button><CopyIcon size={14} /> Copy</button>
-                                <button><QrCode size={14} /> QR Code</button>
-                                <button><ExternalLink size={14} /> View on Explorer</button>
                             </div>
                         </div>
 
@@ -955,8 +942,8 @@ function Header() {
                                     </div>
                                 </div>
 
-                                <button className="btn btn-primary bento-submit-btn mt-20" style={{background: 'linear-gradient(90deg, #4d6bff, #8a2be2)'}}>Donate</button>
-                                <div className="text-center mt-12 text-muted" style={{fontSize: '0.8rem'}}>You've contributed <span style={{color: '#4d6bff'}}>5 XLM</span></div>
+                                <button className="btn btn-primary bento-submit-btn mt-20">Donate</button>
+                                <div className="text-center mt-12 text-muted" style={{fontSize: '0.8rem'}}>You've contributed <span style={{color: '#ffffff'}}>5 XLM</span></div>
                             </div>
                         </div>
 
