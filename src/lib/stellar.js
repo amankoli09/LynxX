@@ -17,6 +17,7 @@ export function toStroops(xlm) {
 /** Convert stroops (BigInt | number | string) back to XLM as a Number. */
 export function fromStroops(stroops) {
     return Number(BigInt(stroops)) / STROOPS;
+
 }
 
 /**

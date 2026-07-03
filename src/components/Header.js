@@ -272,7 +272,7 @@ function Header() {
                 {/* In-panel nav */}
                 <nav className={`cf-nav ${scrolled ? "cf-nav-scrolled" : ""}`}>
                     <div className="cf-nav-brand">
-                        <img className="cf-nav-logo" src={logoImg} alt="LynxX logo" onClick={() => setActiveView('home')} style={{cursor: 'pointer'}} />
+                        <img className="cf-nav-logo" src={logoImg.src || logoImg} alt="LynxX logo" onClick={() => setActiveView('home')} style={{cursor: 'pointer'}} />
                     </div>
                     <div className="cf-nav-pill">
                         <span className={`cf-nav-link ${activeView === 'home' ? 'cf-nav-active' : ''}`} onClick={() => { setActiveView('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Home</span>
@@ -312,7 +312,7 @@ function Header() {
                         {coinsOk ? (
                             <img
                                 className="hero-coins"
-                                src={coinsImg}
+                                src={coinsImg.src || coinsImg}
                                 alt="Floating crypto coins"
                                 onError={() => setCoinsOk(false)}
                             />
@@ -649,7 +649,7 @@ function Header() {
                 <div className="lp-footer-top">
                     <div className="lp-footer-brand-col">
                         <div className="lp-footer-brand">
-                            <img className="cf-nav-logo" src={logoImg} alt="LynxX logo" />
+                            <img className="cf-nav-logo" src={logoImg.src || logoImg} alt="LynxX logo" />
                         </div>
                         <p className="lp-footer-tagline">Non-custodial payments &amp; on-chain crowdfunding, built on Stellar.</p>
                         <div className="lp-footer-socials">
@@ -694,7 +694,7 @@ function Header() {
             <aside className="bento-sidebar">
                 <div className="bento-logo">
                     <img 
-                        src={logoImg} 
+                        src={logoImg.src || logoImg}
                         alt="LynxX logo" 
                         onClick={handleDisconnect}
                         style={{ cursor: 'pointer', height: '36px' }}
@@ -939,7 +939,7 @@ function Header() {
                             <span className="bento-card-title">Campaigns</span>
                             <a href="#" className="bento-view-all">View All</a>
                         </div>
-                        <div className="bento-card bento-crowdfund-card" style={{ backgroundImage: `url(${earthImg})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+                        <div className="bento-card bento-crowdfund-card" style={{ backgroundImage: `url(${earthImg.src || earthImg})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
                             <div className="bento-cf-overlay"></div>
                             <div className="bento-cf-content">
                                 <div className="bento-cf-badge"><span className="bento-dot green"></span> LIVE</div>
@@ -1000,7 +1000,7 @@ function Header() {
 
                 {/* Footer */}
                 <div className="bento-footer">
-                    <img src={logoImg} alt="LynxX logo" className="bento-footer-logo" />
+                    <img src={logoImg.src || logoImg} alt="LynxX logo" className="bento-footer-logo" />
                     <div className="bento-footer-links">
                         Built on Stellar & Soroban &nbsp;&bull;&nbsp; Non-custodial &nbsp;&bull;&nbsp; Privacy First
                         {/* Toast Notification */}
