@@ -21,6 +21,7 @@ import logoImg from "../media/LynxX.png";
 import earthImg from "../media/earth.png";
 import { connectWallet, fetchBalance, sendPayment } from "./Wallet";
 import MarketAnalytics from "./MarketAnalytics";
+import { MultiChainSwap } from "./motion/swap";
 
 /* ── SVG Icons ── */
 const SendIcon = () => (
@@ -698,13 +699,13 @@ function Header() {
                     />
                 </div>
                 <nav className="bento-nav">
-                    <a href="#" className="bento-nav-item active" onClick={e => e.preventDefault()}><Home size={20} /> Dashboard</a>
+                    <a href="#" className={`bento-nav-item ${activeView === 'home' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('home'); }}><Home size={20} /> Dashboard</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><SendIconLucide size={20} /> Send</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Download size={20} /> Receive</a>
-                    <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><RefreshCw size={20} /> Swap</a>
+                    <a href="#" className={`bento-nav-item ${activeView === 'swap' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('swap'); }}><RefreshCw size={20} /> Swap</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Clock size={20} /> Activity</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Users size={20} /> Contacts</a>
-                    <a href="#" className="bento-nav-item" onClick={() => setActiveView('analytics')}><BarChart2 size={20} /> Analytics</a>
+                    <a href="#" className={`bento-nav-item ${activeView === 'analytics' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('analytics'); }}><BarChart2 size={20} /> Analytics</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Settings size={20} /> Settings</a>
                 </nav>
                 
@@ -741,6 +742,13 @@ function Header() {
                 </header>
 
                 {/* Dashboard Grid */}
+                {activeView === 'swap' ? (
+                    <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+                        <MultiChainSwap />
+                    </div>
+                ) : activeView === 'analytics' ? (
+                    <MarketAnalytics /> // Assuming you want analytics inside the dashboard as well if clicked from sidebar
+                ) : (
                 <div className="bento-grid">
                     {/* Column 1 */}
                     <div className="bento-col bento-col-1">
@@ -986,6 +994,7 @@ function Header() {
                         </div>
                     </div>
                 </div>
+                )}
 
                 {/* Footer */}
                 <div className="bento-footer">
