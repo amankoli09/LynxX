@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useEffect } from "react";
 import { 
     Home, Send as SendIconLucide, Download, RefreshCw, Clock, Users, BarChart2, 
