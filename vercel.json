@@ -1,4 +1,0 @@
-{
-  "installCommand": "npm install --legacy-peer-deps --no-audit --no-fund",
-  "buildCommand": "CI=false npm run build"
-}
