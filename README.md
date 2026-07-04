@@ -132,7 +132,8 @@ Every push and pull request to `main` runs **[GitHub Actions](.github/workflows/
 | **Soroban contracts** | install Rust → `cargo test --workspace` |
 | **Frontend** | `npm ci` → `npm test` → `npm run build` |
 
-> <img width="1457" height="545" alt="Screenshot 2026-06-21 at 9 11 15 PM" src="https://github.com/user-attachments/assets/52cfb77a-526b-4bfa-a075-06d659ffbc10" />
+><img width="1466" height="736" alt="Screenshot 2026-07-04 at 11 27 10 PM" src="https://github.com/user-attachments/assets/552a045d-4618-42c9-ae2d-a6c466b32fdb" />
+
 
 
 ---
