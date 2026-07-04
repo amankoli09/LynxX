@@ -6,7 +6,8 @@ import {
     Settings, ExternalLink, ArrowRight, Bell, LogOut, ChevronDown, ChevronRight, Eye, EyeOff, 
     Copy as CopyIcon, QrCode, CreditCard, Layers, ArrowUpRight, ArrowDownLeft 
 } from "lucide-react";
-import LightRays from "./LightRays";
+
+
 import Terminal from "./Terminal";
 import Crowdfund from "./Crowdfund";
 import Reveal from "./Reveal";
@@ -18,11 +19,21 @@ import Testimonials from "./Testimonials";
 import MagicRings from "./MagicRings";
 import Analytics from "./Analytics";
 import OnboardingModal, { shouldShowOnboarding } from "./OnboardingModal";
-import coinsImg from "../media/landphoto.png";
+import mainBG from "../media/mainBG.png";
 import logoImg from "../media/LynxX.png";
-import earthImg from "../media/earth.png";
+import mainCatImg from "../media/maincat.png";
+import ribbonImg from "../media/ribbon.png";
+import featureImg from "../media/lynxxfeature.png";
+import howItWorksImg from "../media/howitworks.png";
+import footerBgImg from "../media/footor.png";
+import faqBgImg from "../media/FAQ.png";
+import crowdfundImg from "../media/crowdfund.png";
+import smallpieceImg from "../media/smallpiece.png";
+import setinImg from "../media/setin.png";
+import feedbackImg from "../media/feedback.png";
 import { connectWallet, fetchBalance, sendPayment } from "./Wallet";
 import MarketAnalytics from "./MarketAnalytics";
+import { donate } from "./Fund";
 import { MultiChainSwap } from "./motion/swap";
 
 /* ── SVG Icons ── */
@@ -91,8 +102,9 @@ const GithubIcon = () => (
 );
 
 function Header() {
-    const [address, setAddress]     = useState("");
+    const [address, setAddress]     = useState(() => typeof window !== "undefined" ? localStorage.getItem("connected_wallet") || "" : "");
     const [balance, setBalance]     = useState("");
+    const [isBalanceVisible, setIsBalanceVisible] = useState(true);
     const [recipient, setRecipient] = useState("");
     const [amount, setAmount]       = useState("");
     const [status, setStatus]       = useState("");
@@ -141,6 +153,18 @@ function Header() {
         } catch {}
     };
 
+    // Rehydrate connection session on reload
+    useEffect(() => {
+        const savedPk = localStorage.getItem("connected_wallet");
+        if (savedPk) {
+            setAddress(savedPk);
+            fetchBalance(savedPk)
+                .then(bal => setBalance(Number(bal).toFixed(2)))
+                .catch(e => console.error("Could not fetch balance on reconnect:", e));
+            setTxHistory(loadHistory(savedPk));
+        }
+    }, []);
+
     const handleConnect = async () => {
         setIsConnecting(true);
         try {
@@ -148,6 +172,8 @@ function Header() {
             setAddress(pk);
             const bal = await fetchBalance(pk);
             setBalance(Number(bal).toFixed(2));
+            // Save session to localStorage
+            localStorage.setItem("connected_wallet", pk);
             // Restore this wallet's history from localStorage
             setTxHistory(loadHistory(pk));
         } catch (e) {
@@ -162,6 +188,7 @@ function Header() {
     };
 
     const handleDisconnect = () => {
+        localStorage.removeItem("connected_wallet");
         setAddress(""); setBalance(""); setRecipient("");
         setAmount(""); setStatus(""); setHash("");
         // Keep txHistory in memory for UX; it's already saved in localStorage
@@ -196,6 +223,25 @@ function Header() {
             setStatus("error");
             showToast(e?.message || "Transaction failed. Please try again.", "error");
         } finally { setIsSending(false); }
+    };
+
+    const handleCampaignDonate = async () => {
+        if (!address) {
+            showToast("Please connect your wallet first.", "error");
+            return;
+        }
+        setIsSending(true);
+        try {
+            const txHash = await donate(address, "20");
+            const bal = await fetchBalance(address);
+            setBalance(Number(bal).toFixed(2));
+            showToast(`Donated 20 XLM! Hash: ${txHash.slice(0, 8)}...`, "success");
+        } catch (e) {
+            console.error(e);
+            showToast(e?.message || "Donation failed.", "error");
+        } finally {
+            setIsSending(false);
+        }
     };
 
     const refreshBalance = async () => {
@@ -249,41 +295,33 @@ function Header() {
             )}
 
             {/* ── Framed hero panel (ChainFund-style) ── */}
-            <section className="lp-hero-section">
-
-                {/* Light Rays WebGL – spotlight beams down onto the coins on the right */}
-                <LightRays
-                    raysOrigin="top-right"
-                    raysColor="#6a8dff"
-                    raysSpeed={0.8}
-                    lightSpread={0.5}
-                    rayLength={2.8}
-                    followMouse={true}
-                    mouseInfluence={0.12}
-                    noiseAmount={0}
-                    distortion={0}
-                    fadeDistance={1.1}
-                    saturation={1}
-                />
-
-                {/* Perspective grid floor */}
-                <div className="lp-hero-grid" />
+            <section 
+                className="lp-hero-section" 
+                style={{ 
+                    position: 'relative', 
+                    backgroundImage: `url(${mainBG.src || mainBG})`, 
+                    backgroundSize: 'cover', 
+                    backgroundPosition: 'center' 
+                }}
+            >
 
                 {/* In-panel nav */}
                 <nav className={`cf-nav ${scrolled ? "cf-nav-scrolled" : ""}`}>
-                    <div className="cf-nav-brand">
-                        <img className="cf-nav-logo" src={logoImg.src || logoImg} alt="LynxX logo" onClick={() => setActiveView('home')} style={{cursor: 'pointer'}} />
+                    <div className="cf-nav-left">
+                        <div className="cf-nav-brand">
+                            <img className="cf-nav-logo" src={logoImg.src || logoImg} alt="LynxX logo" onClick={() => setActiveView('home')} style={{cursor: 'pointer'}} />
+                        </div>
+                        <div className="cf-nav-pill">
+                            <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>Features</span>
+                            <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>How it works</span>
+                            <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>Crowdfund</span>
+                            <span className={`cf-nav-link ${activeView === 'analytics' ? 'cf-nav-active' : ''}`} onClick={() => { setActiveView('analytics'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Analytics</span>
+                        </div>
                     </div>
-                    <div className="cf-nav-pill">
-                        <span className={`cf-nav-link ${activeView === 'home' ? 'cf-nav-active' : ''}`} onClick={() => { setActiveView('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Home</span>
-                        <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>Features</span>
-                        <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>How it works</span>
-                        <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>Crowdfund</span>
-                        <span className={`cf-nav-link ${activeView === 'analytics' ? 'cf-nav-active' : ''}`} onClick={() => { setActiveView('analytics'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Analytics</span>
-                        <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>FAQ</span>
-                    </div>
-                    <button id="btn-connect-nav" className="cf-nav-cta" onClick={handleConnect} disabled={isConnecting}>
-                        {isConnecting ? <><span className="spinner"></span> Connecting…</> : "Connect Wallet"}
+                    <button id="btn-connect-nav" className="cf-nav-cta-glass" onClick={handleConnect} disabled={isConnecting}>
+                        {isConnecting ? <span className="spinner"></span> : null}
+                        <span>Connect Wallet</span>
+                        <div className="cf-nav-cta-icon"><ArrowRight size={18} strokeWidth={2.5} /></div>
                     </button>
                 </nav>
 
@@ -302,201 +340,152 @@ function Header() {
                             Non-custodial payments and on-chain<br />
                             crowdfunding, powered by Stellar &amp; Soroban.
                         </p>
-                        <button id="btn-connect-hero" className="btn btn-glass-primary cf-cta" onClick={handleConnect} disabled={isConnecting}>
-                            {isConnecting ? <><span className="spinner"></span> Connecting…</> : <>Get Started <ArrowRightIcon /></>}
+                        <button id="btn-connect-hero" className="cf-hero-cta" onClick={handleConnect} disabled={isConnecting}>
+                            {isConnecting ? <span className="spinner"></span> : null}
+                            <span>Get Started</span>
+                            <div className="cf-hero-cta-icon"><ArrowRight size={18} strokeWidth={2.5} /></div>
                         </button>
                     </div>
 
-                    <Reveal className="cf-hero-visual" delay={120}>
-                        <div className="hero-coins-glow" />
-                        {coinsOk ? (
-                            <img
-                                className="hero-coins"
-                                src={coinsImg.src || coinsImg}
-                                alt="Floating crypto coins"
-                                onError={() => setCoinsOk(false)}
-                            />
-                        ) : (
-                            <div className="app-preview">
-                                <div className="app-preview-bar">
-                                    <span className="app-preview-dot ap-red" />
-                                    <span className="app-preview-dot ap-yellow" />
-                                    <span className="app-preview-dot ap-green" />
-                                    <span className="app-preview-url">app.lynxx.xyz</span>
-                                </div>
-                                <div className="app-preview-body">
-                                    <div className="ap-balance">
-                                        <span className="ap-balance-lbl">Total Balance</span>
-                                        <div className="ap-balance-amt">10,000.00 <span>XLM</span></div>
-                                        <span className="ap-balance-chg">▲ 2.4% this week</span>
-                                    </div>
-                                    <div className="ap-actions">
-                                        <div className="ap-btn ap-btn-primary"><SendIcon /> Send</div>
-                                        <div className="ap-btn">Receive</div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </Reveal>
+
                 </div>
 
-                {/* Bottom feature row */}
-                <div className="cf-hero-features">
-                    <div className="cf-hf">
-                        <span className="cf-hf-ic"><ZapIcon /></span>
-                        <div className="cf-hf-text">
-                            <b>Instant Settlement</b>
-                            <p>Payments finalize in about five seconds on Stellar</p>
-                        </div>
-                    </div>
-                    <div className="cf-hf">
-                        <span className="cf-hf-ic"><ShieldIcon /></span>
-                        <div className="cf-hf-text">
-                            <b>Non-Custodial</b>
-                            <p>Your keys, your coins — you sign every transaction</p>
-                        </div>
-                    </div>
-                    <div className="cf-hf">
-                        <span className="cf-hf-ic"><LayersIcon /></span>
-                        <div className="cf-hf-text">
-                            <b>On-Chain Crowdfunding</b>
-                            <p>Donate through real Soroban smart contracts</p>
-                        </div>
-                    </div>
-                </div>
+
                 </>
                 )}
             </section>
 
             {activeView === 'home' && (
                 <>
-                {/* ── Features (bento) ── */}
-                <section className="lp-features" id="features">
-                <div className="lp-section-inner">
-                    <Reveal className="cf-sec-head">
-                        <div className="cf-sec-head-left">
-                            <div className="hero-eyebrow">[ Why LynxX? ]</div>
-                            <h2 className="lp-section-title">Everything you need<br />to move money fast</h2>
-                        </div>
-                        <div className="cf-sec-head-right">
-                            <p className="cf-sec-head-text">
-                                LynxX merges fast, non-custodial payments with real on-chain
-                                smart contracts — unlocking trustless transfers and crowdfunding on Stellar.
-                            </p>
-                        </div>
-                    </Reveal>
-                    <div className="cf-bento">
-                        {/* left column */}
-                        <Reveal className="bento-card">
-                            <div className="lp-feature-icon"><ZapIcon /></div>
-                            <div className="lp-feature-title">Instant finality</div>
-                            <div className="lp-feature-desc">Stellar reaches consensus in about 5 seconds, so your payment is final almost instantly — no block-confirmation waiting.</div>
+                {/* ── Metrics band ── */}
+                <section className="lp-metrics">
+                    <div className="lp-section-inner lp-metrics-grid">
+                        <Reveal className="metric">
+                            <div className="metric-num"><Counter to={5} decimals={1} prefix="~" suffix="s" /></div>
+                            <div className="metric-lbl">Avg. settlement</div>
                         </Reveal>
-                        <Reveal className="bento-card" delay={80}>
-                            <div className="lp-feature-icon"><KeyIcon /></div>
-                            <div className="lp-feature-title">Non-custodial</div>
-                            <div className="lp-feature-desc">Your keys, your coins. You sign every transaction in Freighter — we never touch your funds.</div>
+                        <Reveal className="metric" delay={80}>
+                            <div className="metric-num"><Counter to={0.00001} decimals={5} prefix="$" /></div>
+                            <div className="metric-lbl">Network fee</div>
                         </Reveal>
-
-                        {/* center — chip animation card */}
-                        <Reveal className="bento-card bento-center" delay={120}>
-                            <div className="lp-feature-icon"><LayersIcon /></div>
-                            <div className="lp-feature-title">Real Soroban smart contracts</div>
-                            <div className="lp-feature-desc">More than payments — a live crowdfunding contract on Testnet, with on-chain donations, events, and inter-contract calls.</div>
-                            <div className="chip-stage">
-                                <div className="chip-trace chip-trace-l1" />
-                                <div className="chip-trace chip-trace-l2" />
-                                <div className="chip-trace chip-trace-r1" />
-                                <div className="chip-trace chip-trace-r2" />
-                                <div className="chip-beam" />
-                                <div className="chip-core">
-                                    <span className="chip-corner chip-corner-tl" />
-                                    <span className="chip-corner chip-corner-br" />
-                                    <LayersIcon />
-                                </div>
-                            </div>
+                        <Reveal className="metric" delay={160}>
+                            <div className="metric-num"><Counter to={180} suffix="+" /></div>
+                            <div className="metric-lbl">Countries reachable</div>
                         </Reveal>
-
-                        {/* right column */}
-                        <Reveal className="bento-card" delay={160}>
-                            <div className="lp-feature-icon"><GlobeIcon /></div>
-                            <div className="lp-feature-title">Near-zero fees</div>
-                            <div className="lp-feature-desc">Send XLM for ~$0.00001. Cross-border payments that actually make sense.</div>
-                        </Reveal>
-                        <Reveal className="bento-card" delay={200}>
-                            <div className="lp-feature-icon"><ShieldIcon /></div>
-                            <div className="lp-feature-title">Audited primitives</div>
-                            <div className="lp-feature-desc">Built on Stellar's battle-tested SDK and the native token interface.</div>
+                        <Reveal className="metric" delay={240}>
+                            <div className="metric-num"><Counter to={99.9} decimals={1} suffix="%" /></div>
+                            <div className="metric-lbl">Network uptime</div>
                         </Reveal>
                     </div>
+                </section>
+
+                {/* ── Features (bento) ── */}
+                <section className="lp-features" id="features">
+                <div className="lp-section-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '80px' }}>
+                    <Reveal className="lp-features-left">
+                        <img 
+                            src={featureImg.src || featureImg} 
+                            alt="LynxX features" 
+                            style={{ 
+                                width: '100%', 
+                                maxWidth: '700px', 
+                                display: 'block',
+                                filter: 'brightness(1.15) drop-shadow(0 20px 40px rgba(0,0,0,0.5))' 
+                            }} 
+                        />
+                    </Reveal>
+                    <Reveal className="lp-features-right" style={{ padding: '20px 0' }}>
+                        <h2 className="lp-section-title" style={{ fontSize: 'clamp(2.5rem, 4vw, 3.2rem)', marginBottom: '24px', lineHeight: '1.1', fontWeight: '500', letterSpacing: '-0.02em', textAlign: 'left' }}>
+                            Everything you need<br />to move money fast
+                        </h2>
+                        <p style={{ fontSize: '1.15rem', color: 'rgba(255,255,255,0.65)', lineHeight: '1.6', marginBottom: '40px', maxWidth: '480px' }}>
+                            LynxX merges fast, non-custodial payments with real on-chain
+                            smart contracts — unlocking trustless transfers and crowdfunding on Stellar.
+                        </p>
+                        <button className="cf-hero-cta" onClick={handleConnect} disabled={isConnecting}>
+                            {isConnecting ? <span className="spinner"></span> : null}
+                            <span>Get started</span>
+                            <div className="cf-hero-cta-icon"><ArrowRight size={18} strokeWidth={2.5} /></div>
+                        </button>
+                    </Reveal>
                 </div>
             </section>
 
             {/* ── How it Works ── */}
             <section className="lp-how" id="how-it-works">
-                <div className="lp-section-inner">
-                    <Reveal>
-                        <div className="lp-section-eyebrow">How it works</div>
-                        <h2 className="lp-section-title">Three simple steps</h2>
+                <div className="lp-section-inner" style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', alignItems: 'center', gap: '60px' }}>
+                    <Reveal className="lp-how-left">
+                        <h2 className="lp-section-title" style={{ fontSize: 'clamp(2.5rem, 4vw, 3.2rem)', marginBottom: '40px', lineHeight: '1.1', fontWeight: '500', letterSpacing: '-0.02em', textAlign: 'left' }}>
+                            Three simple steps
+                        </h2>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+                                <div style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#a855f7', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <div>
+                                    <h4 style={{ fontSize: '1.3rem', fontWeight: '500', color: '#fff', marginBottom: '8px' }}>Install Freighter</h4>
+                                    <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.1rem', lineHeight: '1.5', margin: 0, maxWidth: '400px' }}>Download the Freighter browser extension and create or import your Stellar wallet.</p>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+                                <div style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#a855f7', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <div>
+                                    <h4 style={{ fontSize: '1.3rem', fontWeight: '500', color: '#fff', marginBottom: '8px' }}>Connect your wallet</h4>
+                                    <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.1rem', lineHeight: '1.5', margin: 0, maxWidth: '400px' }}>Click "Launch app" and approve the connection request in Freighter.</p>
+                                </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
+                                <div style={{ background: 'rgba(168, 85, 247, 0.2)', color: '#a855f7', borderRadius: '50%', width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                                </div>
+                                <div>
+                                    <h4 style={{ fontSize: '1.3rem', fontWeight: '500', color: '#fff', marginBottom: '8px' }}>Send &amp; fund</h4>
+                                    <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: '1.1rem', lineHeight: '1.5', margin: 0, maxWidth: '400px' }}>Send XLM to any address or donate to the on-chain campaign.</p>
+                                </div>
+                            </div>
+                        </div>
                     </Reveal>
-                    <div className="lp-steps-grid">
-                        <Reveal className="lp-step">
-                            <div className="lp-step-num">1</div>
-                            <div className="lp-step-title">Install Freighter</div>
-                            <div className="lp-step-desc">Download the Freighter browser extension and create or import your Stellar wallet. Switch to Testnet mode.</div>
-                        </Reveal>
-                        <Reveal className="lp-step" delay={120}>
-                            <div className="lp-step-num">2</div>
-                            <div className="lp-step-title">Connect your wallet</div>
-                            <div className="lp-step-desc">Click "Launch app" and approve the connection request in Freighter. Your balance loads automatically.</div>
-                        </Reveal>
-                        <Reveal className="lp-step" delay={240}>
-                            <div className="lp-step-num">3</div>
-                            <div className="lp-step-title">Send &amp; fund</div>
-                            <div className="lp-step-desc">Send XLM to any address or donate to the on-chain campaign — sign in Freighter and watch it settle in seconds.</div>
-                        </Reveal>
-                    </div>
+                    <Reveal className="lp-how-right" delay={120}>
+                        <img 
+                            src={howItWorksImg.src || howItWorksImg} 
+                            alt="How it works" 
+                            style={{ 
+                                width: '100%', 
+                                display: 'block', 
+                                transform: 'scale(1.15)',
+                                transformOrigin: 'center left',
+                                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))' 
+                            }} 
+                        />
+                    </Reveal>
                 </div>
             </section>
 
-            {/* ── Terminal Demo ── */}
-            <section className="lp-terminal" id="terminal">
-                <div className="lp-terminal-rings">
-                    <MagicRings
-                        color="#5b7cff"
-                        colorTwo="#6a8dff"
-                        ringCount={6}
-                        speed={1}
-                        attenuation={10}
-                        lineThickness={2}
-                        baseRadius={0.35}
-                        radiusStep={0.1}
-                        scaleRate={0.1}
-                        opacity={0.7}
-                        noiseAmount={0.08}
-                        ringGap={1.5}
-                        fadeIn={0.7}
-                        fadeOut={0.5}
-                        followMouse={true}
-                        mouseInfluence={0.2}
-                        parallax={0.05}
-                    />
-                </div>
-                <div className="lp-terminal-inner">
-                    <Reveal>
-                        <div className="lp-section-eyebrow">Live demo</div>
-                        <h2 className="lp-section-title">See it in action</h2>
+            {/* ── Terminal Demo (Replaced by Image) ── */}
+            <section className="lp-terminal" id="terminal" style={{ position: 'relative', overflow: 'hidden' }}>
+                <img src={smallpieceImg.src || smallpieceImg} alt="" style={{ position: 'absolute', top: '20px', right: '-300px', width: '600px', opacity: 0.9, transform: 'rotate(-70deg)', pointerEvents: 'none', zIndex: 0 }} />
+                <div className="lp-terminal-inner" style={{ position: 'relative', zIndex: 1 }}>
+                    <Reveal delay={120}>
+                        <img src={setinImg.src || setinImg} alt="See it in action" style={{ width: '100%', height: 'auto', borderRadius: '16px', display: 'block', margin: '0 auto' }} />
                     </Reveal>
-                    <Reveal delay={120}><Terminal /></Reveal>
                 </div>
             </section>
 
             {/* ── Live On-chain Campaign ── */}
-            <section className="lp-campaign" id="campaign">
-                <div className="lp-campaign-inner">
+            <section className="lp-campaign" id="campaign" style={{ position: 'relative', overflow: 'hidden' }}>
+                <img src={smallpieceImg.src || smallpieceImg} alt="" style={{ position: 'absolute', top: '60px', left: '-300px', width: '600px', opacity: 0.9, transform: 'rotate(110deg)', pointerEvents: 'none', zIndex: 0 }} />
+                <div className="lp-campaign-inner" style={{ position: 'relative', zIndex: 1 }}>
+                    <Reveal delay={120}>
+                        <img src={crowdfundImg.src || crowdfundImg} alt="Crowdfunding campaign" style={{ width: '100%', height: 'auto', borderRadius: '16px' }} />
+                    </Reveal>
                     <Reveal className="lp-campaign-copy">
                         <div className="lp-section-eyebrow">[ Powered by Soroban ]</div>
-                        <h2 className="lp-section-title">Crowdfunding that lives<br />entirely on-chain</h2>
+                        <h2 className="lp-section-title" style={{ fontSize: '3.5rem', fontWeight: '700', lineHeight: '1.1', marginBottom: '24px', letterSpacing: '-0.02em' }}>
+                            Crowdfunding that lives<br />entirely on-chain
+                        </h2>
                         <p className="lp-campaign-text">
                             No middlemen, no backend. Every donation is a Soroban contract call —
                             funds settle trustlessly inside the contract, the bar you see updates
@@ -508,16 +497,18 @@ function Header() {
                             <div className="lp-campaign-point"><CheckIcon /> Verifiable on the public ledger</div>
                         </div>
                     </Reveal>
-                    <Reveal delay={120}><Crowdfund address={null} /></Reveal>
                 </div>
             </section>
 
             {/* ── Smart Contracts ── */}
-            <section className="lp-contracts" id="contracts">
-                <div className="lp-section-inner">
+            <section className="lp-contracts" id="contracts" style={{ position: 'relative', overflow: 'hidden' }}>
+                <img src={smallpieceImg.src || smallpieceImg} alt="" style={{ position: 'absolute', bottom: '-10%', right: '-350px', width: '700px', opacity: 0.9, transform: 'rotate(160deg)', pointerEvents: 'none', zIndex: 0 }} />
+                <div className="lp-section-inner" style={{ position: 'relative', zIndex: 1 }}>
                     <Reveal>
                         <div className="lp-section-eyebrow">On-chain architecture</div>
-                        <h2 className="lp-section-title">Two contracts, talking to each other</h2>
+                        <h2 className="lp-section-title" style={{ fontSize: '3.5rem', fontWeight: '700', lineHeight: '1.1', marginBottom: '24px', letterSpacing: '-0.02em' }}>
+                            Two contracts, talking to each other
+                        </h2>
                         <p className="lp-faq-sub">StellarFund and DonorBadge are live Soroban contracts — every donation triggers a real cross-contract call.</p>
                     </Reveal>
                     <Reveal delay={120}><Contracts /></Reveal>
@@ -535,27 +526,7 @@ function Header() {
                 </div>
             </section>
 
-            {/* ── Metrics band ── */}
-            <section className="lp-metrics">
-                <div className="lp-section-inner lp-metrics-grid">
-                    <Reveal className="metric">
-                        <div className="metric-num"><Counter to={5} decimals={1} prefix="~" suffix="s" /></div>
-                        <div className="metric-lbl">Avg. settlement</div>
-                    </Reveal>
-                    <Reveal className="metric" delay={80}>
-                        <div className="metric-num"><Counter to={0.00001} decimals={5} prefix="$" /></div>
-                        <div className="metric-lbl">Network fee</div>
-                    </Reveal>
-                    <Reveal className="metric" delay={160}>
-                        <div className="metric-num"><Counter to={180} suffix="+" /></div>
-                        <div className="metric-lbl">Countries reachable</div>
-                    </Reveal>
-                    <Reveal className="metric" delay={240}>
-                        <div className="metric-num"><Counter to={99.9} decimals={1} suffix="%" /></div>
-                        <div className="metric-lbl">Network uptime</div>
-                    </Reveal>
-                </div>
-            </section>
+
 
             {/* ── Testimonials ── */}
             <section className="lp-testimonials" id="testimonials">
@@ -568,51 +539,23 @@ function Header() {
                 </div>
             </section>
 
-            {/* ── Live Analytics Dashboard ── */}
-            <section className="lp-analytics" id="analytics">
-                <div className="lp-section-inner">
+            {/* ── Testimonial Card ── */}
+            <section className="lp-feedback" id="feedback" style={{ padding: '80px 4%' }}>
+                <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
                     <Reveal>
-                        <div className="lp-section-eyebrow">On-chain data</div>
-                        <h2 className="lp-section-title">Live campaign analytics</h2>
-                    </Reveal>
-                    <Reveal delay={120}><Analytics /></Reveal>
-                </div>
-            </section>
-
-            {/* ── Feedback ── */}
-            <section className="lp-feedback" id="feedback">
-                <div className="lp-section-inner">
-                    <Reveal className="lp-feedback-head">
-                        <div className="lp-section-eyebrow">Community</div>
-                        <h2 className="lp-section-title">Join 50+ beta testers</h2>
-                        <p className="lp-faq-sub">Share your wallet address and feedback to help shape LynxX. Your input directly drives our next features.</p>
-                    </Reveal>
-                    <Reveal delay={120}>
-                        <div className="feedback-panel">
-                            <div className="feedback-panel-left">
-                                <div className="feedback-stat"><span className="feedback-stat-num">50+</span><span className="feedback-stat-lbl">Beta users onboarded</span></div>
-                                <div className="feedback-stat"><span className="feedback-stat-num">4.8★</span><span className="feedback-stat-lbl">Avg. satisfaction score</span></div>
-                                <div className="feedback-stat"><span className="feedback-stat-num">100%</span><span className="feedback-stat-lbl">Non-custodial, always</span></div>
-                                <a
-                                    href="https://docs.google.com/forms/d/e/1FAIpQLSf-PLACEHOLDER/viewform"
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    id="btn-feedback"
-                                    className="btn btn-gradient"
-                                    style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginTop: 8 }}
-                                >
-                                    Fill User Feedback Form <ArrowRightIcon />
-                                </a>
-                                <p style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.35)', marginTop: 8 }}>
-                                    Takes ~2 minutes · Wallet address + rating required
-                                </p>
-                            </div>
-                            <div className="feedback-panel-right">
-                                <div className="feedback-steps">
-                                    <div className="feedback-step"><span className="feedback-step-num">1</span><div><b>Connect Freighter</b><p>Switch to Testnet and connect your wallet</p></div></div>
-                                    <div className="feedback-step"><span className="feedback-step-num">2</span><div><b>Make a transaction</b><p>Send XLM or donate to the crowdfund campaign</p></div></div>
-                                    <div className="feedback-step"><span className="feedback-step-num">3</span><div><b>Submit feedback</b><p>Fill the Google Form — takes 2 minutes</p></div></div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', backgroundColor: '#fff', borderRadius: '32px', overflow: 'hidden', minHeight: '450px' }}>
+                            <div style={{ flex: '1 1 600px', padding: '80px 80px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                                <div style={{ color: '#888', fontSize: '0.85rem', letterSpacing: '2px', textTransform: 'uppercase', marginBottom: '32px', fontWeight: '600' }}>TESTIMONIAL</div>
+                                <div style={{ fontSize: '2.2rem', fontWeight: '500', color: '#111', lineHeight: '1.4', marginBottom: '32px', fontFamily: 'Inter, sans-serif' }}>
+                                    "We went from 3 to 28 people in just 3 months thanks for the great management of LynxX."
                                 </div>
+                                <div>
+                                    <div style={{ color: '#111', fontWeight: '600', fontSize: '1.1rem', marginBottom: '6px' }}>Richard Oconor</div>
+                                    <div style={{ color: '#666', fontSize: '1rem' }}>Marketing Manager at Intelo</div>
+                                </div>
+                            </div>
+                            <div style={{ flex: '1 1 400px', position: 'relative', minHeight: '450px' }}>
+                                <img src={feedbackImg.src || feedbackImg} alt="Glass curve" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
                             </div>
                         </div>
                     </Reveal>
@@ -620,12 +563,12 @@ function Header() {
             </section>
 
             {/* ── FAQ ── */}
-            <section className="lp-faq" id="faq">
+            <section className="lp-faq" id="faq" style={{ backgroundImage: `url(${faqBgImg.src || faqBgImg})`, backgroundSize: 'cover', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat' }}>
                 <div className="lp-section-inner lp-faq-inner">
                     <Reveal className="lp-faq-head">
                         <div className="lp-section-eyebrow">FAQ</div>
-                        <h2 className="lp-section-title">Questions, answered</h2>
-                        <p className="lp-faq-sub">Everything you might want to know before you connect.</p>
+                        <h2 className="lp-section-title" style={{ fontSize: 'clamp(2.5rem, 5vw, 3.8rem)', marginBottom: '24px' }}>Got questions?<br/>We've got answers.</h2>
+                        <p className="lp-faq-sub" style={{ fontSize: '1.25rem' }}>Everything you need to know before making your first trustless payment.</p>
                     </Reveal>
                     <Reveal delay={120}><FAQ /></Reveal>
                 </div>
@@ -633,53 +576,62 @@ function Header() {
 
             {/* ── CTA ── */}
             <section className="lp-cta" id="cta">
-                <Reveal className="lp-cta-card">
-                    <h2 className="lp-cta-title">Ready to send your first payment?</h2>
-                    <p className="lp-cta-sub">Connect your Freighter wallet and experience the speed of Stellar — no sign-up, no custodian, no fees.</p>
-                    <button id="btn-connect-cta" className="btn btn-gradient btn-lg" onClick={handleConnect} disabled={isConnecting}>
-                        {isConnecting ? <><span className="spinner"></span> Connecting...</> : <>Connect Wallet <ArrowRightIcon /></>}
-                    </button>
+                <Reveal className="lp-cta-card" style={{ backgroundImage: `url(${footerBgImg.src || footerBgImg})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', overflow: 'hidden', padding: '100px 40px' }}>
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <h2 className="lp-cta-title">Ready to send your first payment?</h2>
+                        <p className="lp-cta-sub">Connect your wallet and experience the speed of Stellar — no sign-up, no custodian, no fees.</p>
+                        <button id="btn-connect-cta" className="cf-hero-cta" onClick={handleConnect} disabled={isConnecting} style={{ margin: '0 auto' }}>
+                            {isConnecting ? <span className="spinner"></span> : null}
+                            <span>Connect Wallet</span>
+                            <div className="cf-hero-cta-icon"><ArrowRight size={18} strokeWidth={2.5} /></div>
+                        </button>
+                    </div>
                 </Reveal>
             </section>
             </>
             )}
 
             {/* ── Footer ── */}
-            <footer className="lp-footer">
-                <div className="lp-footer-top">
-                    <div className="lp-footer-brand-col">
-                        <div className="lp-footer-brand">
-                            <img className="cf-nav-logo" src={logoImg.src || logoImg} alt="LynxX logo" />
-                        </div>
-                        <p className="lp-footer-tagline">Non-custodial payments &amp; on-chain crowdfunding, built on Stellar.</p>
-                        <div className="lp-footer-socials">
-                            <a href="https://github.com" target="_blank" rel="noreferrer" className="lp-footer-social"><GithubIcon /></a>
-                            <a href="https://twitter.com" target="_blank" rel="noreferrer" className="lp-footer-social"><TwitterIcon /></a>
+            <footer className="lp-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '40px 40px 40px', background: '#000', color: '#fff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px', maxWidth: '1200px', margin: '0 auto 60px' }}>
+                    
+                    {/* Left Column */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', maxWidth: '300px' }}>
+                        <img src={logoImg.src || logoImg} alt="LynxX logo" style={{ width: '160px', height: 'auto', objectFit: 'contain', objectPosition: 'left' }} />
+                        
+
+                        
+                        <div style={{ display: 'flex', gap: '20px', color: '#fff', marginTop: '8px' }}>
+                            <a href="https://twitter.com" target="_blank" rel="noreferrer" style={{ color: '#fff', opacity: 0.7 }}><TwitterIcon /></a>
+                            <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: '#fff', opacity: 0.7 }}><GithubIcon /></a>
                         </div>
                     </div>
-                    <div className="lp-footer-links-cols">
-                        <div className="lp-footer-col">
-                            <span className="lp-footer-col-title">Product</span>
-                            <span className="lp-footer-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}>Features</span>
-                            <span className="lp-footer-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })}>How it works</span>
-                            <span className="lp-footer-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })}>Crowdfund</span>
+                    
+                    {/* Right Columns */}
+                    <div style={{ display: 'flex', gap: '100px', flexWrap: 'wrap' }}>
+                        {/* Col 1 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Features</span>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>How it works</span>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Crowdfund</span>
                         </div>
-                        <div className="lp-footer-col">
-                            <span className="lp-footer-col-title">Resources</span>
-                            <a className="lp-footer-link" href="https://developers.stellar.org" target="_blank" rel="noreferrer">Stellar Docs</a>
-                            <a className="lp-footer-link" href="https://www.freighter.app" target="_blank" rel="noreferrer">Freighter Wallet</a>
-                            <a className="lp-footer-link" href="https://stellar.expert/explorer/testnet" target="_blank" rel="noreferrer">Testnet Explorer</a>
-                        </div>
-                        <div className="lp-footer-col">
-                            <span className="lp-footer-col-title">Get started</span>
-                            <span className="lp-footer-link" onClick={handleConnect}>Connect wallet</span>
-                            <span className="lp-footer-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('faq')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>FAQ</span>
+                        {/* Col 2 */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <span className="lp-footer-link" onClick={() => { setActiveView('analytics'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Analytics</span>
+                            <span className="lp-footer-link" onClick={handleConnect} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Dashboard</span>
                         </div>
                     </div>
                 </div>
-                <div className="lp-footer-bottom">
-                    <span className="lp-footer-text">© 2026 LynxX — built on Stellar Testnet for demonstration purposes.</span>
-                    <span className="lp-footer-text">Made with Soroban &amp; React</span>
+                
+                {/* Bottom Bar */}
+                <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                    <div style={{ fontWeight: '500' }}>© LynxX</div>
+                    <div>Designed by <strong style={{ color: '#fff', textDecoration: 'underline', cursor: 'pointer' }}>K</strong> - Powered by <strong style={{ color: '#fff', textDecoration: 'underline', cursor: 'pointer' }}>Stellar</strong></div>
+                    <div style={{ display: 'flex', gap: '32px' }}>
+                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>
+                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms of Service</span>
+                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Cookies Settings</span>
+                    </div>
                 </div>
             </footer>
         </>
@@ -692,17 +644,17 @@ function Header() {
         <div className="bento-dashboard-page">
             {/* Sidebar */}
             <aside className="bento-sidebar">
-                <div className="bento-logo">
+                <div className="bento-logo" style={{ display: 'flex', justifyContent: 'center' }}>
                     <img 
-                        src={logoImg.src || logoImg}
+                        src={mainCatImg.src || mainCatImg}
                         alt="LynxX logo" 
                         onClick={handleDisconnect}
-                        style={{ cursor: 'pointer', height: '36px' }}
+                        style={{ cursor: 'pointer', height: '140px', width: 'auto', objectFit: 'contain' }}
                     />
                 </div>
                 <nav className="bento-nav">
                     <a href="#" className={`bento-nav-item ${activeView === 'home' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('home'); }}><Home size={20} /> Dashboard</a>
-                    <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><SendIconLucide size={20} /> Send</a>
+                    <a href="#" className={`bento-nav-item ${activeView === 'send' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('send'); }}><SendIconLucide size={20} /> Send</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Download size={20} /> Receive</a>
                     <a href="#" className={`bento-nav-item ${activeView === 'swap' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('swap'); }}><RefreshCw size={20} /> Swap</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Clock size={20} /> Activity</a>
@@ -744,95 +696,15 @@ function Header() {
                 </header>
 
                 {/* Dashboard Grid */}
-                {activeView === 'swap' ? (
-                    <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
-                        <MultiChainSwap />
-                    </div>
-                ) : activeView === 'analytics' ? (
-                    <MarketAnalytics /> // Assuming you want analytics inside the dashboard as well if clicked from sidebar
-                ) : (
-                <div className="bento-grid">
-                    {/* Column 1 */}
-                    <div className="bento-col bento-col-1">
-                        {/* Total Balance */}
-                        <div className="bento-card bento-balance-card">
-                            <div className="bento-card-header">
-                                Total Balance <Eye size={16} className="text-muted" /> <EyeOff size={16} className="text-muted" />
-                            </div>
-                            <div className="bento-balance-amount">{balance} <span>XLM</span></div>
-                            <div className="bento-balance-usd">≈ ${(balance * 0.328).toFixed(2)} USD</div>
-                            
-                            {/* Mock Sparkline */}
-                            <div className="bento-sparkline">
-                                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
-                                    <defs>
-                                        <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
-                                            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-                                        </linearGradient>
-                                    </defs>
-                                    <path d="M0,35 C10,25 20,40 30,20 C40,0 50,25 60,10 C70,0 80,20 90,5 L100,0 L100,40 L0,40 Z" fill="url(#sparklineGrad)" />
-                                    <path d="M0,35 C10,25 20,40 30,20 C40,0 50,25 60,10 C70,0 80,20 90,5 L100,0" fill="none" stroke="#ffffff" strokeWidth="2.5" />
-                                </svg>
-                            </div>
-                            <div className="bento-timeframes">
-                                <span className="active">1D</span><span>7D</span><span>30D</span><span>1Y</span><span>All</span>
-                            </div>
-                        </div>
-
-                        {/* Recent Activity */}
-                        <div className="bento-card bento-activity-card">
-                            <div className="bento-card-header mb-16">
-                                <span className="bento-card-title">Recent Activity</span>
-                                <a href="#" className="bento-view-all">View All</a>
-                            </div>
-                            <div className="bento-activity-list">
-                                {txHistory.length > 0 ? txHistory.map((tx, i) => (
-                                    <div className="bento-activity-item" key={i}>
-                                        <div className="bento-act-icon red"><ArrowUpRight size={16} /></div>
-                                        <div className="bento-act-info">
-                                            <div className="bento-act-title">Sent</div>
-                                            <div className="bento-act-sub">To {tx.recipient ? short(tx.recipient) : "Stellar address"}</div>
-                                        </div>
-                                        <div className="bento-act-amount negative">- {tx.amount} XLM<br/><span>{tx.date}</span></div>
-                                    </div>
-                                )) : (
-                                    <>
-                                        <div className="bento-activity-item">
-                                            <div className="bento-act-icon green"><ArrowDownLeft size={16} /></div>
-                                            <div className="bento-act-info">
-                                                <div className="bento-act-title">Received</div>
-                                                <div className="bento-act-sub">From GDZ5...F3T2</div>
-                                            </div>
-                                            <div className="bento-act-amount positive">+120.50 XLM<br/><span>2m ago</span></div>
-                                        </div>
-                                        <div className="bento-activity-item">
-                                            <div className="bento-act-icon purple"><RefreshCw size={16} /></div>
-                                            <div className="bento-act-info">
-                                                <div className="bento-act-title">Swap</div>
-                                                <div className="bento-act-sub">XLM → USDC</div>
-                                            </div>
-                                            <div className="bento-act-amount positive">+24.32 USDC<br/><span>3h ago</span></div>
-                                        </div>
-                                    </>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Column 2 */}
-                    <div className="bento-col bento-col-2">
-                        {/* Quick Actions Row */}
-                        <div className="bento-quick-actions">
-                            <div className="bento-qa-item"><div className="bento-qa-icon blue"><SendIconLucide size={20} /></div> Send</div>
-                            <div className="bento-qa-item"><div className="bento-qa-icon outline"><Download size={20} /></div> Receive</div>
-                            <div className="bento-qa-item"><div className="bento-qa-icon outline"><RefreshCw size={20} /></div> Swap</div>
-                            <div className="bento-qa-item"><div className="bento-qa-icon outline"><CreditCard size={20} /></div> Buy</div>
-                            <div className="bento-qa-item"><div className="bento-qa-icon outline"><Layers size={20} /></div> Stake</div>
-                        </div>
-
-                        {/* Send XLM Card */}
-                        <div className="bento-card bento-send-card">
+                {activeView === 'send' ? (
+                    <div style={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'center', padding: '40px 20px', position: 'relative', flexShrink: 0 }}>
+                        {/* Right-side ribbon background */}
+                        <img 
+                            src={ribbonImg.src || ribbonImg} 
+                            alt="" 
+                            style={{ position: 'absolute', right: '-25%', top: '50%', transform: 'translateY(-50%)', height: '110%', opacity: 0.5, pointerEvents: 'none', zIndex: 0 }} 
+                        />
+                        <div className="bento-card bento-send-card" style={{ maxWidth: '600px', width: '100%', position: 'relative', zIndex: 1, background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)' }}>
                             <div className="bento-card-header">
                                 <span className="bento-card-title">Send XLM</span>
                                 <span className="bento-card-sub text-muted">Recent <ChevronDown size={14} /></span>
@@ -896,26 +768,48 @@ function Header() {
                                 </div>
                             )}
                         </div>
-
-                        {/* Portfolio Card */}
-                        <div className="bento-card bento-portfolio-card">
-                            <div className="bento-card-title mb-16">Portfolio</div>
-                            <div className="bento-portfolio-body">
-                                <div className="bento-donut-wrap">
-                                    <div className="bento-donut-chart">
-                                        <div className="bento-donut-inner">
-                                            <span className="amount">{balance}</span>
-                                            <span className="label">XLM<br/>Total</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="bento-portfolio-legend">
-                                    <div className="legend-row"><span className="dot xlm"></span> <span className="name">XLM</span> <span className="pct">100%</span> <span className="val">{balance}</span></div>
-                                    <div className="legend-row"><span className="dot usdc"></span> <span className="name">USDC</span> <span className="pct">0%</span> <span className="val">0.00</span></div>
-                                    <div className="legend-row"><span className="dot other"></span> <span className="name">Other Assets</span> <span className="pct">0%</span> <span className="val">0.00</span></div>
+                    </div>
+                ) : activeView === 'swap' ? (
+                    <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
+                        <MultiChainSwap />
+                    </div>
+                ) : activeView === 'analytics' ? (
+                    <MarketAnalytics /> // Assuming you want analytics inside the dashboard as well if clicked from sidebar
+                ) : (
+                <div className="bento-grid">
+                    {/* Column 1 */}
+                    <div className="bento-col bento-col-1">
+                        {/* Total Balance */}
+                        <div className="bento-card bento-balance-card">
+                            <div className="bento-card-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <span>Total Balance</span>
+                                <div onClick={() => setIsBalanceVisible(!isBalanceVisible)} style={{ cursor: 'pointer' }}>
+                                    {isBalanceVisible ? <Eye size={16} className="text-muted" /> : <EyeOff size={16} className="text-muted" />}
                                 </div>
                             </div>
-                            <button className="bento-btn-full mt-16">Manage Assets</button>
+                            <div className="bento-balance-amount" style={{ fontSize: '4.5rem', marginTop: '1rem', marginBottom: '1rem' }}>
+                                {isBalanceVisible ? balance : '******'} <span>XLM</span>
+                            </div>
+                            <div className="bento-balance-usd" style={{ fontSize: '1.2rem' }}>
+                                {isBalanceVisible ? `≈ $${(balance * 0.328).toFixed(2)} USD` : '******'}
+                            </div>
+                            
+                            {/* Mock Sparkline */}
+                            <div className="bento-sparkline" style={{ marginTop: '2rem' }}>
+                                <svg viewBox="0 0 100 40" preserveAspectRatio="none">
+                                    <defs>
+                                        <linearGradient id="sparklineGrad" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="0%" stopColor="rgba(255,255,255,0.4)" />
+                                            <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                                        </linearGradient>
+                                    </defs>
+                                    <path d="M0,35 C10,25 20,40 30,20 C40,0 50,25 60,10 C70,0 80,20 90,5 L100,0 L100,40 L0,40 Z" fill="url(#sparklineGrad)" />
+                                    <path d="M0,35 C10,25 20,40 30,20 C40,0 50,25 60,10 C70,0 80,20 90,5 L100,0" fill="none" stroke="#ffffff" strokeWidth="2.5" />
+                                </svg>
+                            </div>
+                            <div className="bento-timeframes">
+                                <span className="active">1D</span><span>7D</span><span>30D</span><span>1Y</span><span>All</span>
+                            </div>
                         </div>
                     </div>
 
@@ -926,7 +820,7 @@ function Header() {
                             <span className="bento-card-title">Campaigns</span>
                             <a href="#" className="bento-view-all">View All</a>
                         </div>
-                        <div className="bento-card bento-crowdfund-card" style={{ backgroundImage: `url(${earthImg.src || earthImg})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
+                        <div className="bento-card bento-crowdfund-card" style={{ backgroundImage: `url(${ribbonImg.src || ribbonImg})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative' }}>
                             <div className="bento-cf-overlay"></div>
                             <div className="bento-cf-content">
                                 <div className="bento-cf-badge"><span className="bento-dot green"></span> LIVE</div>
@@ -944,7 +838,10 @@ function Header() {
                                     </div>
                                 </div>
 
-                                <button className="btn btn-primary bento-submit-btn mt-20">Donate</button>
+                                <button className="donate-glass-btn" onClick={handleCampaignDonate} disabled={isSending}>
+                                    <span>{isSending ? 'Processing...' : 'Donate'}</span>
+                                    <div className="donate-glass-icon"><ArrowRight size={18} strokeWidth={2.5} /></div>
+                                </button>
                                 <div className="text-center mt-12 text-muted" style={{fontSize: '0.8rem'}}>You've contributed <span style={{color: '#ffffff'}}>5 XLM</span></div>
                             </div>
                         </div>
@@ -985,25 +882,17 @@ function Header() {
                 </div>
                 )}
 
-                {/* Footer */}
-                <div className="bento-footer">
-                    <img src={logoImg.src || logoImg} alt="LynxX logo" className="bento-footer-logo" />
-                    <div className="bento-footer-links">
-                        Built on Stellar & Soroban &nbsp;&bull;&nbsp; Non-custodial &nbsp;&bull;&nbsp; Privacy First
-                        {/* Toast Notification */}
-                        {toast && (
-                            <div style={{
-                                position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999,
-                                background: toast.type === 'success' ? '#10b981' : '#ef4444',
-                                color: '#fff', padding: '12px 24px', borderRadius: '8px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.3)', fontWeight: 500, fontSize: '0.9rem',
-                                animation: 'reveal 0.3s cubic-bezier(0.4,0,0.2,1)'
-                            }}>
-                                {toast.message}
-                            </div>
-                        )}
+                {/* Toast Notification */}
+                {toast && (
+                    <div className={`bento-toast bento-toast-${toast.type}`}>
+                        <div className="bento-toast-icon">
+                            {toast.type === 'success' ? '✓' : '✕'}
+                        </div>
+                        <div className="bento-toast-msg">
+                            {toast.message}
+                        </div>
                     </div>
-                </div>
+                )}
             </main>
         </div>
     );

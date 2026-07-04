@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { getCampaign } from "./Fund";
+import { Wallet, Users, Target, Flag } from "lucide-react";
 
 /* ── Animated number helper ── */
 function AnimNum({ value, decimals = 0, suffix = "" }) {
@@ -45,18 +46,42 @@ export default function Analytics() {
     const remaining  = Math.max(GOAL_XLM - raisedXLM, 0).toFixed(2);
 
     return (
-        <div className="analytics-panel">
-            <div className="analytics-header">
-                <div className="analytics-title-row">
-                    <span className="analytics-eyebrow">[ Live On-Chain Data ]</span>
-                    <div className="analytics-live-dot">
-                        <span className="analytics-pulse" />
-                        <span className="analytics-live-text">LIVE</span>
-                    </div>
+        <div className="analytics-section-wrapper" style={{ width: '100%', maxWidth: 860, margin: '0 auto' }}>
+            {/* Top Level Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8">
+                <div>
+                    <div className="lp-section-eyebrow mb-2 text-gray-400 font-bold tracking-widest text-xs">ON-CHAIN DATA</div>
+                    <h2 className="lp-section-title text-4xl font-extrabold mb-2 text-white">Live campaign analytics</h2>
+                    <p className="text-gray-400 text-sm">Real-time insights from the Soroban smart contract on Stellar Testnet.</p>
                 </div>
-                <h3 className="analytics-title">Campaign Analytics</h3>
-                <p className="analytics-sub">Real-time stats pulled directly from the Soroban smart contract on Stellar Testnet.</p>
+                <div className="flex flex-col items-end gap-2 mt-4 md:mt-0">
+                    <div className="analytics-network-badge flex items-center gap-2 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 text-xs text-gray-400">
+                        <span className="analytics-network-dot w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                        <span className="text-emerald-500 font-bold tracking-widest mr-2">LIVE</span>
+                        Stellar Testnet — Soroban RPC
+                    </div>
+                    {lastRefresh && (
+                        <span className="analytics-refresh-time text-xs text-gray-500 flex items-center gap-2">
+                            Updated {lastRefresh.toLocaleTimeString()}
+                            <button className="analytics-refresh-btn hover:text-white transition-colors" onClick={load} title="Refresh">↻</button>
+                        </span>
+                    )}
+                </div>
             </div>
+
+            <div className="analytics-panel mt-0 mx-0 w-full max-w-full">
+                <div className="analytics-header">
+                    <div className="analytics-title-row">
+                        <span className="analytics-eyebrow">LIVE ON-CHAIN DATA</span>
+                        <span className="analytics-divider">|</span>
+                        <div className="analytics-live-dot">
+                            <span className="analytics-pulse" />
+                            <span className="analytics-live-text">LIVE</span>
+                        </div>
+                    </div>
+                    <h3 className="analytics-title">Campaign Analytics</h3>
+                    <p className="analytics-sub">Real-time stats pulled directly from the Soroban smart contract on Stellar Testnet.</p>
+                </div>
 
             {stats.error ? (
                 <div className="analytics-error">
@@ -68,7 +93,9 @@ export default function Analytics() {
                     <div className="analytics-grid">
                         {/* XLM Raised */}
                         <div className="analytics-card analytics-card-accent">
-                            <div className="analytics-card-icon">💰</div>
+                            <div className="analytics-card-icon">
+                                <Wallet className="text-white opacity-80" strokeWidth={1.5} size={28} />
+                            </div>
                             <div className="analytics-card-value">
                                 {stats.loading ? <span className="analytics-skeleton" /> :
                                     <><AnimNum value={raisedXLM} decimals={2} /> <span className="analytics-unit">XLM</span></>}
@@ -78,7 +105,9 @@ export default function Analytics() {
 
                         {/* Unique Donors */}
                         <div className="analytics-card">
-                            <div className="analytics-card-icon">👥</div>
+                            <div className="analytics-card-icon">
+                                <Users className="text-white opacity-80" strokeWidth={1.5} size={28} />
+                            </div>
                             <div className="analytics-card-value">
                                 {stats.loading ? <span className="analytics-skeleton" /> :
                                     <><AnimNum value={stats.donors} decimals={0} /></>}
@@ -88,7 +117,9 @@ export default function Analytics() {
 
                         {/* Remaining */}
                         <div className="analytics-card">
-                            <div className="analytics-card-icon">🎯</div>
+                            <div className="analytics-card-icon">
+                                <Target className="text-white opacity-80" strokeWidth={1.5} size={28} />
+                            </div>
                             <div className="analytics-card-value">
                                 {stats.loading ? <span className="analytics-skeleton" /> :
                                     <><AnimNum value={remaining} decimals={2} /> <span className="analytics-unit">XLM</span></>}
@@ -98,7 +129,9 @@ export default function Analytics() {
 
                         {/* Goal */}
                         <div className="analytics-card">
-                            <div className="analytics-card-icon">🏁</div>
+                            <div className="analytics-card-icon">
+                                <Flag className="text-white opacity-80" strokeWidth={1.5} size={28} />
+                            </div>
                             <div className="analytics-card-value">
                                 1,000 <span className="analytics-unit">XLM</span>
                             </div>
@@ -126,21 +159,9 @@ export default function Analytics() {
                         </div>
                     </div>
 
-                    {/* Network Badge */}
-                    <div className="analytics-network-row">
-                        <div className="analytics-network-badge">
-                            <span className="analytics-network-dot" />
-                            Stellar Testnet — Soroban RPC
-                        </div>
-                        {lastRefresh && (
-                            <span className="analytics-refresh-time">
-                                Updated {lastRefresh.toLocaleTimeString()}
-                                <button className="analytics-refresh-btn" onClick={load} title="Refresh">↻</button>
-                            </span>
-                        )}
-                    </div>
                 </>
             )}
+        </div>
         </div>
     );
 }
