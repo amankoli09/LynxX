@@ -118,7 +118,8 @@ Frontend tests cover the pure conversion, validation, and tier-mapping helpers
 in [`src/lib/stellar.js`](src/lib/stellar.js) — stroop ↔ XLM conversion, Stellar
 address format validation, and badge-tier naming.
 
-> <img width="1181" height="533" alt="Screenshot 2026-06-21 at 9 07 53 PM" src="https://github.com/user-attachments/assets/681eab2d-6b93-47d5-aa3b-c03473b3b937" />
+> <img width="1466" height="788" alt="Screenshot 2026-07-04 at 11 28 36 PM" src="https://github.com/user-attachments/assets/13d5cbdc-9869-4804-88fe-33ace0feadbc" />
+
 
 
 ---
