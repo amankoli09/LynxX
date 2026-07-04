@@ -352,9 +352,11 @@ stellar-connect-wallet/
 
 The dApp is fully responsive across mobile, tablet, and desktop.
 
-<img width="1457" height="778" alt="Screenshot 2026-06-21 at 9 13 14 PM" src="https://github.com/user-attachments/assets/bd251e29-2b71-420d-8ce7-46b8bd9f9fc9" />
+<img width="1466" height="783" alt="Screenshot 2026-07-04 at 11 30 21 PM" src="https://github.com/user-attachments/assets/02d504c2-f325-424f-9d08-17c613159c2a" />
 
-<img width="1457" height="778" alt="Screenshot 2026-06-21 at 9 13 35 PM" src="https://github.com/user-attachments/assets/63032cd8-7180-4d2e-a461-b63e343b5576" />
+
+<img width="1466" height="783" alt="Screenshot 2026-07-04 at 11 30 33 PM" src="https://github.com/user-attachments/assets/cd91df62-c092-462d-95b1-7fe820c13335" />
+
 
 
 ---
@@ -381,7 +383,7 @@ We onboarded **50+ testnet users** via a Google Form that collects wallet addres
 
 ### 📊 Pitch Deck
 
-**🎯 [View StellarFlow Pitch Deck →](https://stellar-connect-wallet-rr5q.vercel.app/pitch.html)**
+**🎯 [View StellarFlow Pitch Deck →](https://lynxxpro.vercel.app/)**
 
 The pitch deck covers:
 - Problem Statement
