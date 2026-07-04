@@ -188,31 +188,36 @@ Every push and pull request to `main` runs **[GitHub Actions](.github/workflows/
 
 ---
 
-### 🌌 Landing Page — Light Rays Hero
+### 🌌 Landing Page 
 > Mouse-interactive WebGL background, glassmorphism nav, hero CTA
 
-<img width="1466" height="739" alt="Screenshot 2026-06-30 at 6 06 08 PM" src="https://github.com/user-attachments/assets/99033bd6-e46b-47d4-9b54-921a681ae2b1" />
+<img width="1466" height="736" alt="Screenshot 2026-07-04 at 11 21 31 PM" src="https://github.com/user-attachments/assets/52c651b4-e341-412c-bda9-2665a86eb3ad" />
+<img width="1466" height="736" alt="Screenshot 2026-07-04 at 11 21 40 PM" src="https://github.com/user-attachments/assets/aaad0f7b-2f2d-432c-a83e-68c5db902c86" />
+
 
 
 
 ### 🔌 Wallet Connected — Dashboard View
 > Balance displayed, wallet address shown, Recent Activity panel ready
 
-<img width="1466" height="739" alt="Screenshot 2026-07-01 at 3 40 04 PM" src="https://github.com/user-attachments/assets/8993c1b0-76bf-43f5-b0fe-df938551c60b" />
+<img width="1466" height="736" alt="Screenshot 2026-07-04 at 11 22 01 PM" src="https://github.com/user-attachments/assets/61a04d4a-13e1-4880-9ac3-b4d955597f4b" />
+
 
 
 
 ### 📤 Sending XLM — Transfer Panel
 > Recipient address input with Stellar format validation, amount field, Process Transfer button
 
-<img width="1466" height="739" alt="Screenshot 2026-07-01 at 3 40 30 PM" src="https://github.com/user-attachments/assets/b18c27a6-5730-4de8-8f0b-902f6555cf5e" />
+<img width="1466" height="736" alt="Screenshot 2026-07-04 at 11 22 35 PM" src="https://github.com/user-attachments/assets/501a47cd-1a27-4c73-b32b-00006aac88dc" />
+
 
 
 
 ### ✅ Successful Testnet Transaction
 > Green "Transaction confirmed" badge with the on-chain transaction hash
 
-<img width="1466" height="739" alt="Screenshot 2026-07-01 at 3 40 48 PM" src="https://github.com/user-attachments/assets/d14978c1-d8bd-47b7-8ec4-d412e1e17ccc" />
+<img width="1466" height="736" alt="Screenshot 2026-07-04 at 11 23 24 PM" src="https://github.com/user-attachments/assets/cb4243e4-c29c-4411-9bae-4c6e98aa402a" />
+
 
 
 ---
