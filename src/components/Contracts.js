@@ -14,6 +14,33 @@ const TIERS = [
 export default function Contracts() {
     return (
         <div className="contracts-block">
+            <style>{`
+                .contract-card {
+                    position: relative;
+                    background: rgba(15, 15, 20, 0.85) !important;
+                    backdrop-filter: blur(24px);
+                    border-radius: 24px !important;
+                    border: none !important;
+                    box-shadow: 0 10px 40px rgba(255, 255, 255, 0.05), 0 0 80px rgba(255, 255, 255, 0.03) !important;
+                    transition: transform 0.3s ease, box-shadow 0.3s ease;
+                }
+                .contract-card:hover {
+                    transform: translateY(-4px);
+                    box-shadow: 0 15px 50px rgba(255, 255, 255, 0.08), 0 0 100px rgba(255, 255, 255, 0.05) !important;
+                }
+                .contract-card::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    border-radius: inherit;
+                    padding: 2px;
+                    background: linear-gradient(135deg, rgba(255, 255, 255, 0.4) 0%, transparent 60%, rgba(255, 255, 255, 0.1) 100%);
+                    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                    -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+                    pointer-events: none;
+                }
+            `}</style>
             <div className="contracts-pair">
                 {/* ── Fund contract ── */}
                 <div className="contract-card">

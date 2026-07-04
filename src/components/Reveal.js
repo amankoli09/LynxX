@@ -4,7 +4,7 @@ import { useRef, useEffect, useState } from "react";
  * Fades + slides its children in the first time they scroll into view.
  * Usage: <Reveal delay={120}>…</Reveal>
  */
-export default function Reveal({ children, className = "", delay = 0, as: Tag = "div" }) {
+export default function Reveal({ children, className = "", delay = 0, style = {}, as: Tag = "div", ...rest }) {
     const ref = useRef(null);
     const [shown, setShown] = useState(false);
 
@@ -26,9 +26,10 @@ export default function Reveal({ children, className = "", delay = 0, as: Tag = 
 
     return (
         <Tag
+            {...rest}
             ref={ref}
             className={`reveal ${shown ? "reveal-in" : ""} ${className}`}
-            style={{ transitionDelay: `${delay}ms` }}
+            style={{ ...style, transitionDelay: `${delay}ms` }}
         >
             {children}
         </Tag>

@@ -35,20 +35,79 @@ const PHASES = [
 /* Product roadmap timeline — communicates momentum and where the project is headed. */
 export default function Roadmap() {
     return (
-        <div className="roadmap">
-            <div className="roadmap-line" />
-            {PHASES.map((p, i) => (
-                <div className={`roadmap-item roadmap-${p.status}`} key={i}>
-                    <div className="roadmap-marker" />
-                    <span className={`roadmap-tag roadmap-tag-${p.status}`}>{p.tag}</span>
-                    <h4 className="roadmap-title">{p.title}</h4>
-                    <ul className="roadmap-items">
-                        {p.items.map((it) => (
-                            <li key={it}>{it}</li>
-                        ))}
-                    </ul>
-                </div>
-            ))}
+        <div className="roadmap-grid-container">
+            <style>{`
+                .rm-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+                    gap: 32px;
+                    margin-top: 24px;
+                }
+                .rm-card {
+                    position: relative;
+                    padding: 40px;
+                    border-radius: 24px;
+                    background: #000;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .rm-card::before {
+                    content: '';
+                    position: absolute;
+                    inset: 0;
+                    border-radius: inherit;
+                    padding: 1px; /* border thickness */
+                    background: linear-gradient(135deg, rgba(255,255,255,0.5) 0%, transparent 50%);
+                    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+                    -webkit-mask-composite: xor;
+                    mask-composite: exclude;
+                    pointer-events: none;
+                }
+                .rm-title {
+                    font-size: 1.4rem;
+                    font-weight: 500;
+                    color: #fff;
+                    margin: 0 0 16px 0;
+                    line-height: 1.4;
+                }
+                .rm-items {
+                    list-style: none;
+                    padding: 0;
+                    margin: 0;
+                    color: rgba(255, 255, 255, 0.7);
+                    font-size: 0.95rem;
+                    line-height: 1.6;
+                    flex: 1;
+                }
+                .rm-items li {
+                    margin-bottom: 8px;
+                }
+                .rm-footer {
+                    margin-top: 40px;
+                    display: flex;
+                    align-items: center;
+                }
+            `}</style>
+            
+            <div className="rm-grid">
+                {PHASES.map((p, i) => (
+                    <div className="rm-card" key={i}>
+                        <h3 className="rm-title">{p.title}</h3>
+                        
+                        <ul className="rm-items">
+                            {p.items.map((it) => (
+                                <li key={it}>{it}</li>
+                            ))}
+                        </ul>
+                        
+                        <div className="rm-footer">
+                            <span className={`roadmap-tag roadmap-tag-${p.status}`} style={{ margin: 0 }}>
+                                {p.tag}
+                            </span>
+                        </div>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 }
