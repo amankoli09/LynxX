@@ -1,0 +1,15 @@
+[package]
+name = "factory"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+soroban-sdk = { workspace = true }
+
+[dev_dependencies]
+soroban-sdk = { workspace = true, features = ["testutils"] }
+fund = { path = "../fund" }
+
+[lib]
+crate-type = ["cdylib", "rlib"]

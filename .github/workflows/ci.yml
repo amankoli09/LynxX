@@ -31,6 +31,12 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
+      - name: Pre-build fund contract to WASM
+        run: |
+          rustup target add wasm32v1-none
+          cargo build --target wasm32v1-none --release -p fund
+        working-directory: contract
+
       - name: Run contract unit tests with coverage
         run: cargo llvm-cov --all-features --workspace
 
