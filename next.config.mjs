@@ -1,11 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
+  images: {
+    // Serve images as WebP/AVIF automatically — 70–85% smaller than PNG
+    formats: ['image/avif', 'image/webp'],
+    // Cache optimized images for 30 days on the CDN
+    minimumCacheTTL: 60 * 60 * 24 * 30,
+    // Device widths used for responsive srcsets
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
 };
 

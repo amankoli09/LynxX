@@ -3,7 +3,8 @@ import { Inter } from 'next/font/google';
 import '../index.css';
 import '../App.css';
 
-const inter = Inter({ subsets: ['latin'] });
+// display: 'swap' prevents FOIT — text is readable immediately with fallback font
+const inter = Inter({ subsets: ['latin'], display: 'swap' });
 
 export const metadata: Metadata = {
   title: 'LynxX - Non-custodial Payments on Stellar',
@@ -17,6 +18,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={inter.className}>
+      <head>
+        {/* Early connection to Google Fonts CDN reduces font load latency */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body>
         <div id="root">{children}</div>
       </body>

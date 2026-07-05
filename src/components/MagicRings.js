@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 
 import './MagicRings.css';
@@ -93,6 +93,8 @@ export default function MagicRings({
   const hoverAmountRef = useRef(0);
   const isHoveredRef = useRef(false);
   const burstRef = useRef(0);
+  // Pause animation when rings are off-screen
+  const [isVisible, setIsVisible] = useState(false);
 
   propsRef.current = {
     color, colorTwo, speed, ringCount, attenuation, lineThickness,
@@ -101,7 +103,19 @@ export default function MagicRings({
     hoverScale, parallax, clickBurst,
   };
 
+  // Observe mount visibility — start animation only when in viewport
   useEffect(() => {
+    if (!mountRef.current) return;
+    const observer = new IntersectionObserver(
+      entries => setIsVisible(entries[0].isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(mountRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;   // don't start until visible
     const mount = mountRef.current;
     if (!mount) return;
 
@@ -156,7 +170,7 @@ export default function MagicRings({
     const resize = () => {
       const w = mount.clientWidth;
       const h = mount.clientHeight;
-      const dpr = Math.min(window.devicePixelRatio, 2);
+      const dpr = Math.min(window.devicePixelRatio, 1.5);
       renderer.setSize(w, h);
       renderer.setPixelRatio(dpr);
       uniforms.uResolution.value.set(w * dpr, h * dpr);
@@ -234,7 +248,7 @@ export default function MagicRings({
       renderer.dispose();
       material.dispose();
     };
-  }, []);
+  }, [isVisible]);   // re-run when visibility changes
 
   return <div ref={mountRef} className="magic-rings-container" style={blur > 0 ? { filter: `blur(${blur}px)` } : undefined} />;
 }
