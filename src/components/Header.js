@@ -179,9 +179,15 @@ function Header() {
         } catch (e) {
             // Show a friendly in-app modal instead of a raw alert. Missing
             // wallet → offer the install link; anything else → explain & retry.
+            
+            let errorMessage = e?.message || "Failed to connect wallet. Please try again.";
+            if (errorMessage.toLowerCase().includes("closed the modal") || errorMessage.toLowerCase().includes("user rejected")) {
+                errorMessage = "Connection request was cancelled securely. Please try again when you are ready.";
+            }
+
             setWalletPrompt({
-                title: e?.code === "NotInstalled" ? "Wallet not detected" : "Couldn't connect",
-                message: e?.message || "Failed to connect wallet. Please try again.",
+                title: e?.code === "NotInstalled" ? "Wallet not detected" : "Connection Cancelled",
+                message: errorMessage,
                 showInstall: e?.code === "NotInstalled",
             });
         } finally { setIsConnecting(false); }
@@ -592,45 +598,77 @@ function Header() {
             )}
 
             {/* ── Footer ── */}
-            <footer className="lp-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '40px 40px 40px', background: '#000', color: '#fff' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '40px', maxWidth: '1200px', margin: '0 auto 60px' }}>
+            <footer className="lp-footer" style={{ borderTop: '1px solid rgba(255,255,255,0.05)', padding: '80px 40px 40px', background: '#000', color: '#fff' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '60px', maxWidth: '1200px', margin: '0 auto 80px' }}>
                     
-                    {/* Left Column */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', maxWidth: '300px' }}>
-                        <img src={logoImg.src || logoImg} alt="LynxX logo" style={{ width: '160px', height: 'auto', objectFit: 'contain', objectPosition: 'left' }} />
-                        
-
-                        
-                        <div style={{ display: 'flex', gap: '20px', color: '#fff', marginTop: '8px' }}>
-                            <a href="https://twitter.com" target="_blank" rel="noreferrer" style={{ color: '#fff', opacity: 0.7 }}><TwitterIcon /></a>
-                            <a href="https://github.com" target="_blank" rel="noreferrer" style={{ color: '#fff', opacity: 0.7 }}><GithubIcon /></a>
-                        </div>
+                    {/* Left Huge Text */}
+                    <div style={{ flex: '1', minWidth: '300px' }}>
+                        <h2 style={{ fontSize: '3.5rem', fontWeight: 'bold', lineHeight: '1.1', textTransform: 'uppercase', letterSpacing: '0.02em', margin: 0 }}>
+                            YOUR WALLET,<br/>YOUR RULES
+                        </h2>
                     </div>
                     
                     {/* Right Columns */}
-                    <div style={{ display: 'flex', gap: '100px', flexWrap: 'wrap' }}>
-                        {/* Col 1 */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            <span className="lp-footer-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Features</span>
-                            <span className="lp-footer-link" onClick={() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>How it works</span>
-                            <span className="lp-footer-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Crowdfund</span>
+                    <div style={{ display: 'flex', gap: '60px', flexWrap: 'wrap', flex: '2', justifyContent: 'flex-end' }}>
+                        {/* WALLET */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '140px' }}>
+                            <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', marginBottom: '8px' }}>Wallet</h4>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>About LynxX</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Security</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Supported Assets</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Fees</span>
                         </div>
-                        {/* Col 2 */}
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                            <span className="lp-footer-link" onClick={() => { setActiveView('analytics'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Analytics</span>
-                            <span className="lp-footer-link" onClick={handleConnect} style={{ fontWeight: '500', fontSize: '1rem', color: '#fff', cursor: 'pointer' }}>Dashboard</span>
+                        {/* FEATURES */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '140px' }}>
+                            <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', marginBottom: '8px' }}>Features</h4>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Send & Receive</span>
+                            <span className="lp-footer-link" onClick={() => { setActiveView('swap'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Multi-Chain Swap</span>
+                            <span className="lp-footer-link" onClick={() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' })} style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Crowdfund</span>
+                            <span className="lp-footer-link" onClick={() => { setActiveView('analytics'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Analytics</span>
+                        </div>
+                        {/* COMMUNITY */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '140px' }}>
+                            <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', marginBottom: '8px' }}>Community</h4>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Discord</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Twitter / X</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>GitHub</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Blog</span>
+                        </div>
+                        {/* DEVELOPERS */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '140px' }}>
+                            <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', marginBottom: '8px' }}>Developers</h4>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Documentation</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>API Reference</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Stellar Network</span>
+                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Smart Contracts</span>
                         </div>
                     </div>
                 </div>
                 
+                {/* Logo & CTA Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', maxWidth: '1200px', margin: '0 auto 40px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <img src={logoImg.src || logoImg} alt="LynxX logo" style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                        <span style={{ fontSize: '1.25rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>LynxX</span>
+                    </div>
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <button onClick={handleConnect} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', color: '#fff', padding: '10px 24px', borderRadius: '30px', fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.05em', cursor: 'pointer', transition: 'all 0.2s' }} onMouseOver={(e) => e.target.style.borderColor = '#fff'} onMouseOut={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.3)'}>
+                            CONNECT WALLET
+                        </button>
+                    </div>
+                </div>
+
                 {/* Bottom Bar */}
-                <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
-                    <div style={{ fontWeight: '500' }}>© LynxX</div>
-                    <div>Designed by <strong style={{ color: '#fff', textDecoration: 'underline', cursor: 'pointer' }}>K</strong> - Powered by <strong style={{ color: '#fff', textDecoration: 'underline', cursor: 'pointer' }}>Stellar</strong></div>
-                    <div style={{ display: 'flex', gap: '32px' }}>
-                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Privacy Policy</span>
-                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Terms of Service</span>
-                        <span style={{ textDecoration: 'underline', cursor: 'pointer' }}>Cookies Settings</span>
+                <div style={{ maxWidth: '1200px', margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', paddingTop: '32px', borderTop: '1px solid rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.5)', fontSize: '0.8rem' }}>
+                    <div style={{ display: 'flex', gap: '32px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <span style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer', color: '#fff', fontWeight: '500' }}>English <ChevronDown size={14} /></span>
+                        <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = '#fff'} onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>Terms of Use</span>
+                        <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = '#fff'} onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>Privacy Policy</span>
+                        <span style={{ cursor: 'pointer', transition: 'color 0.2s' }} onMouseOver={(e) => e.target.style.color = '#fff'} onMouseOut={(e) => e.target.style.color = 'rgba(255,255,255,0.5)'}>Cookie Settings</span>
+                    </div>
+                    <div style={{ textAlign: 'right', lineHeight: '1.6' }}>
+                        Copyright {new Date().getFullYear()} LynxX. All rights reserved.<br/>
+                        Designed by <strong style={{ color: '#fff' }}>K</strong> - Powered by <strong style={{ color: '#fff' }}>Stellar</strong>
                     </div>
                 </div>
             </footer>
