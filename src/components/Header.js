@@ -18,6 +18,9 @@ import Roadmap from "./Roadmap";
 import Testimonials from "./Testimonials";
 import MagicRings from "./MagicRings";
 import Analytics from "./Analytics";
+import Activity from "./Activity";
+import Receive from "./Receive";
+import NotificationBell from "./NotificationBell";
 import OnboardingModal, { shouldShowOnboarding } from "./OnboardingModal";
 import mainBG from "../media/mainBG.png";
 import logoImg from "../media/LynxX.png";
@@ -119,6 +122,8 @@ function Header() {
     const [showOnboarding, setShowOnboarding] = useState(false); // first-visit guide
     const [activeView, setActiveView] = useState("home"); // "home" | "analytics"
     const [toast, setToast] = useState(null);
+    const [notifications, setNotifications] = useState([]);
+    const [showNotifications, setShowNotifications] = useState(false);
 
     const showToast = (message, type = 'error') => {
         setToast({ message, type });
@@ -217,6 +222,8 @@ function Header() {
             setRecipient(""); setAmount("");
             const bal = await fetchBalance(address);
             setBalance(Number(bal).toFixed(2));
+            const newNotif = { id: Date.now(), text: "You have been successfully transaction", date: new Date().toLocaleTimeString(), read: false };
+            setNotifications(prev => [newNotif, ...prev]);
             showToast("Transaction successful!", "success");
         } catch (e) {
             console.error(e);
@@ -235,6 +242,8 @@ function Header() {
             const txHash = await donate(address, "20");
             const bal = await fetchBalance(address);
             setBalance(Number(bal).toFixed(2));
+            const newNotif = { id: Date.now(), text: "You have been successfully transaction", date: new Date().toLocaleTimeString(), read: false };
+            setNotifications(prev => [newNotif, ...prev]);
             showToast(`Donated 20 XLM! Hash: ${txHash.slice(0, 8)}...`, "success");
         } catch (e) {
             console.error(e);
@@ -655,9 +664,9 @@ function Header() {
                 <nav className="bento-nav">
                     <a href="#" className={`bento-nav-item ${activeView === 'home' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('home'); }}><Home size={20} /> Dashboard</a>
                     <a href="#" className={`bento-nav-item ${activeView === 'send' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('send'); }}><SendIconLucide size={20} /> Send</a>
-                    <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Download size={20} /> Receive</a>
+                    <a href="#" className={`bento-nav-item ${activeView === 'receive' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('receive'); }}><Download size={20} /> Receive</a>
                     <a href="#" className={`bento-nav-item ${activeView === 'swap' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('swap'); }}><RefreshCw size={20} /> Swap</a>
-                    <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Clock size={20} /> Activity</a>
+                    <a href="#" className={`bento-nav-item ${activeView === 'activity' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('activity'); }}><Clock size={20} /> Activity</a>
 
                     <a href="#" className={`bento-nav-item ${activeView === 'analytics' ? 'active' : ''}`} onClick={e => { e.preventDefault(); setActiveView('analytics'); }}><BarChart2 size={20} /> Analytics</a>
                     <a href="#" className="bento-nav-item" onClick={e => e.preventDefault()}><Settings size={20} /> Settings</a>
@@ -684,7 +693,12 @@ function Header() {
                 <header className="bento-header">
                     <div className="bento-header-left"></div>
                     <div className="bento-header-right">
-                        <Bell size={20} className="bento-icon-btn" />
+                        <NotificationBell 
+                            notifications={notifications} 
+                            setNotifications={setNotifications}
+                            showNotifications={showNotifications}
+                            setShowNotifications={setShowNotifications}
+                        />
                         <button className="bento-btn-outline" onClick={handleDisconnect}>
                             <LogOut size={16} /> Disconnect
                         </button>
@@ -760,9 +774,21 @@ function Header() {
                                         {statusMeta[status].text}
                                     </div>
                                     {hash && (
-                                        <div className="tx-hash-box mt-8">
-                                            <div className="tx-hash-label">Transaction Hash</div>
-                                            <div className="tx-hash-value" style={{fontSize: '0.75rem'}}>{hash}</div>
+                                        <div className="tx-hash-box mt-8 flex flex-col gap-3">
+                                            <div>
+                                                <div className="tx-hash-label mb-1">Transaction Hash</div>
+                                                <div className="tx-hash-value" style={{fontSize: '0.75rem', wordBreak: 'break-all'}}>{hash}</div>
+                                            </div>
+                                            <a 
+                                                href={`https://stellar.expert/explorer/testnet/tx/${hash}`} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="btn btn-glass-secondary flex items-center justify-center gap-2" 
+                                                style={{fontSize: '0.8rem', padding: '8px 16px', textDecoration: 'none', width: 'fit-content', borderRadius: '8px', cursor: 'pointer'}}
+                                            >
+                                                View on Explorer
+                                                <ExternalLink size={14} />
+                                            </a>
                                         </div>
                                     )}
                                 </div>
@@ -773,6 +799,10 @@ function Header() {
                     <div style={{ display: 'flex', width: '100%', alignItems: 'center', justifyContent: 'center', padding: '40px 20px' }}>
                         <MultiChainSwap />
                     </div>
+                ) : activeView === 'activity' ? (
+                    <Activity address={address} />
+                ) : activeView === 'receive' ? (
+                    <Receive address={address} />
                 ) : activeView === 'analytics' ? (
                     <MarketAnalytics /> // Assuming you want analytics inside the dashboard as well if clicked from sidebar
                 ) : (
