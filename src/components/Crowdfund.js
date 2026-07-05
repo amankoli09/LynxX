@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { ExternalLink } from "lucide-react";
 import {
     getCampaign,
     getMyContribution,
@@ -162,9 +163,21 @@ if (oldTier !== newTier) {
                                 {status === "error" && (errorMsg || "Donation failed")}
                             </div>
                             {hash && (
-                                <div className="tx-hash-box">
-                                    <div className="tx-hash-label">Transaction Hash</div>
-                                    <div className="tx-hash-value">{hash}</div>
+                                <div className="tx-hash-box flex flex-col gap-3 mt-4">
+                                    <div>
+                                        <div className="tx-hash-label mb-1">Transaction Hash</div>
+                                        <div className="tx-hash-value" style={{fontSize: '0.75rem', wordBreak: 'break-all'}}>{hash}</div>
+                                    </div>
+                                    <a 
+                                        href={`https://stellar.expert/explorer/testnet/tx/${hash}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="btn btn-glass-secondary flex items-center justify-center gap-2" 
+                                        style={{fontSize: '0.8rem', padding: '8px 16px', textDecoration: 'none', width: 'fit-content', borderRadius: '8px', cursor: 'pointer'}}
+                                    >
+                                        View on Explorer
+                                        <ExternalLink size={14} />
+                                    </a>
                                 </div>
                             )}
                         </div>
