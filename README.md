@@ -398,7 +398,7 @@ The pitch deck covers:
 
 ### 🎬 Demo Video
 
-**▶️ [Watch Full Product Walkthrough →](https://youtu.be/8IG4hLKOBYI?si=qmRZ8nDYfCVZ8ZDe)**
+**▶️ [Watch Full Product Walkthrough →](https://youtu.be/S3Znxelt8Ms)**
 
 ---
 
