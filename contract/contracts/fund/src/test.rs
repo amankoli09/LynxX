@@ -181,3 +181,49 @@ fn donation_awards_badge_cross_contract() {
     assert_eq!(badge.minted(), 1);
     assert_eq!(badge.admin(), fund_id);
 }
+
+#[test]
+fn test_multiple_donors() {
+    let (env, _owner, donor1, token_addr, client) = setup();
+    let donor2 = Address::generate(&env);
+    let token_admin = token::StellarAssetClient::new(&env, &token_addr);
+    token_admin.mint(&donor2, &1000);
+
+    // First donor donates
+    client.donate(&donor1, &100);
+    assert_eq!(client.donors(), 1);
+    
+    // Second donor donates
+    client.donate(&donor2, &200);
+    assert_eq!(client.donors(), 2);
+    
+    // Check total raised
+    assert_eq!(client.raised(), 300);
+    
+    // Same donor again, donors count should not increase
+    client.donate(&donor1, &50);
+    assert_eq!(client.donors(), 2);
+    assert_eq!(client.raised(), 350);
+}
+
+#[test]
+fn test_withdraw_after_close() {
+    let (env, owner, donor, token_addr, client) = setup();
+    
+    // Donate exactly the goal to close the campaign
+    client.donate(&donor, &500);
+    assert!(client.is_closed());
+
+    let token_client = token::Client::new(&env, &token_addr);
+    let owner_balance_before = token_client.balance(&owner);
+    
+    // Withdraw after close
+    let withdrawn = client.withdraw();
+    assert_eq!(withdrawn, 500);
+    
+    let owner_balance_after = token_client.balance(&owner);
+    assert_eq!(owner_balance_after, owner_balance_before + 500);
+    
+    // Contract balance should be 0
+    assert_eq!(token_client.balance(&client.address), 0);
+}
