@@ -28,8 +28,11 @@ jobs:
             contract/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('contract/Cargo.lock') }}
 
-      - name: Run contract unit tests
-        run: cargo test --workspace
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+
+      - name: Run contract unit tests with coverage
+        run: cargo llvm-cov --all-features --workspace
 
   frontend:
     name: Frontend — test & build

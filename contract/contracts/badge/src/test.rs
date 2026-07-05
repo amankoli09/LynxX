@@ -79,3 +79,20 @@ fn counts_unique_donors() {
     assert_eq!(client.minted(), 2);
     assert_eq!(client.admin(), client.admin()); // admin view is readable
 }
+
+#[test]
+#[should_panic(expected = "HostError: Error(Auth, InvalidAction)")]
+fn test_auth_boundaries_reject_unauthorized() {
+    let env = Env::default();
+    
+    // Deliberately NOT calling env.mock_all_auths() to enforce actual auth checks
+    let admin = Address::generate(&env);
+    let contract_id = env.register(BadgeContract, (admin.clone(),));
+    let client = BadgeContractClient::new(&env, &contract_id);
+    
+    let donor = Address::generate(&env);
+    
+    // The client award call requires auth from the `admin` contract. 
+    // Since we aren't mocking auths and we aren't simulating a cross-contract call from `admin`, this will panic.
+    client.award(&donor, &1_000_000_000);
+}
