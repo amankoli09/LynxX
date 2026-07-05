@@ -344,7 +344,7 @@ stellar-connect-wallet/
 
 ### Live app: https://lynxxpro.vercel.app/
 
-### Demo video : https://youtu.be/8IG4hLKOBYI?si=qmRZ8nDYfCVZ8ZDe
+### Demo video : https://youtu.be/S3Znxelt8Ms
 
 ---
 
