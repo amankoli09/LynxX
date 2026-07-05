@@ -6,38 +6,48 @@ import {
     Settings, ExternalLink, ArrowRight, Bell, LogOut, ChevronDown, ChevronRight, Eye, EyeOff, 
     Copy as CopyIcon, QrCode, CreditCard, Layers, ArrowUpRight, ArrowDownLeft 
 } from "lucide-react";
+import Image from "next/image";
+import dynamic from "next/dynamic";
 
-
-import Terminal from "./Terminal";
-import Crowdfund from "./Crowdfund";
+// ── Always-needed components (loaded eagerly) ──
 import Reveal from "./Reveal";
 import Counter from "./Counter";
 import FAQ from "./FAQ";
 import Contracts from "./Contracts";
 import Roadmap from "./Roadmap";
 import Testimonials from "./Testimonials";
-import MagicRings from "./MagicRings";
-import Analytics from "./Analytics";
-import Activity from "./Activity";
-import Receive from "./Receive";
 import NotificationBell from "./NotificationBell";
 import OnboardingModal, { shouldShowOnboarding } from "./OnboardingModal";
-import mainBG from "../media/mainBG.png";
-import logoImg from "../media/LynxX.png";
-import mainCatImg from "../media/maincat.png";
-import ribbonImg from "../media/ribbon.png";
-import featureImg from "../media/lynxxfeature.png";
+
+// ── Below-fold / conditional components (loaded lazily) ──
+// These are only needed after scroll or on user action, so we split them into
+// separate JS chunks that the browser fetches on demand instead of on initial load.
+const Terminal      = dynamic(() => import("./Terminal"),        { ssr: false });
+const Crowdfund     = dynamic(() => import("./Crowdfund"),       { ssr: false });
+const MagicRings    = dynamic(() => import("./MagicRings"),      { ssr: false });
+const Analytics     = dynamic(() => import("./Analytics"),       { ssr: false });
+const Activity      = dynamic(() => import("./Activity"),        { ssr: false });
+const Receive       = dynamic(() => import("./Receive"),         { ssr: false });
+const MarketAnalytics = dynamic(() => import("./MarketAnalytics"), { ssr: false });
+const MultiChainSwap  = dynamic(() => import("./motion/swap").then(m => ({ default: m.MultiChainSwap })), { ssr: false });
+
+// ── Image imports (used as src strings for Next.js <Image> / CSS) ──
+import mainBG       from "../media/mainBG.png";
+import logoImg      from "../media/LynxX.png";
+import mainCatImg   from "../media/maincat.png";
+import ribbonImg    from "../media/ribbon.png";
+import featureImg   from "../media/lynxxfeature.png";
 import howItWorksImg from "../media/howitworks.png";
-import footerBgImg from "../media/footor.png";
-import faqBgImg from "../media/FAQ.png";
+import footerBgImg  from "../media/footor.png";
+import faqBgImg     from "../media/FAQ.png";
 import crowdfundImg from "../media/crowdfund.png";
 import smallpieceImg from "../media/smallpiece.png";
-import setinImg from "../media/setin.png";
-import feedbackImg from "../media/feedback.png";
+import setinImg     from "../media/setin.png";
+import feedbackImg  from "../media/feedback.png";
+
 import { connectWallet, fetchBalance, sendPayment } from "./Wallet";
-import MarketAnalytics from "./MarketAnalytics";
 import { donate } from "./Fund";
-import { MultiChainSwap } from "./motion/swap";
+
 
 /* ── SVG Icons ── */
 const SendIcon = () => (
@@ -313,18 +323,25 @@ function Header() {
             <section 
                 className="lp-hero-section" 
                 style={{ 
-                    position: 'relative', 
-                    backgroundImage: `url(${mainBG.src || mainBG})`, 
-                    backgroundSize: 'cover', 
-                    backgroundPosition: 'center' 
+                    position: 'relative',
                 }}
             >
+                {/* Hero background — loaded as priority WebP via Next.js Image optimizer */}
+                <Image
+                    src={mainBG}
+                    alt=""
+                    fill
+                    priority
+                    aria-hidden="true"
+                    style={{ objectFit: 'cover', objectPosition: 'center', zIndex: 0 }}
+                    quality={85}
+                />
 
                 {/* In-panel nav */}
-                <nav className={`cf-nav ${scrolled ? "cf-nav-scrolled" : ""}`}>
+                <nav className={`cf-nav ${scrolled ? "cf-nav-scrolled" : ""}`} style={{ position: 'relative', zIndex: 1 }}>
                     <div className="cf-nav-left">
                         <div className="cf-nav-brand">
-                            <img className="cf-nav-logo" src={logoImg.src || logoImg} alt="LynxX logo" onClick={() => setActiveView('home')} style={{cursor: 'pointer'}} />
+                            <Image className="cf-nav-logo" src={logoImg} alt="LynxX logo" width={120} height={36} priority onClick={() => setActiveView('home')} style={{cursor: 'pointer', height: '36px', width: 'auto'}} />
                         </div>
                         <div className="cf-nav-pill">
                             <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>Features</span>
@@ -344,7 +361,7 @@ function Header() {
                     <MarketAnalytics />
                 ) : (
                     <>
-                    <div className="cf-hero">
+                    <div className="cf-hero" style={{ position: 'relative', zIndex: 1 }}>
                         <div className="cf-hero-copy">
                             <div className="hero-eyebrow">[ Live on Stellar Testnet ]</div>
                         <h1 className="hero-h1">
@@ -398,12 +415,15 @@ function Header() {
                 <section className="lp-features" id="features">
                 <div className="lp-section-inner" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', alignItems: 'center', gap: '80px' }}>
                     <Reveal className="lp-features-left">
-                        <img 
-                            src={featureImg.src || featureImg} 
+                        <Image 
+                            src={featureImg} 
                             alt="LynxX features" 
+                            width={700}
+                            height={500}
                             style={{ 
                                 width: '100%', 
                                 maxWidth: '700px', 
+                                height: 'auto',
                                 display: 'block',
                                 filter: 'brightness(1.15) drop-shadow(0 20px 40px rgba(0,0,0,0.5))' 
                             }} 
@@ -464,11 +484,14 @@ function Header() {
                         </div>
                     </Reveal>
                     <Reveal className="lp-how-right" delay={120}>
-                        <img 
-                            src={howItWorksImg.src || howItWorksImg} 
+                        <Image 
+                            src={howItWorksImg} 
                             alt="How it works" 
+                            width={700}
+                            height={500}
                             style={{ 
                                 width: '100%', 
+                                height: 'auto',
                                 display: 'block', 
                                 transform: 'scale(1.15)',
                                 transformOrigin: 'center left',
@@ -481,20 +504,20 @@ function Header() {
 
             {/* ── Terminal Demo (Replaced by Image) ── */}
             <section className="lp-terminal" id="terminal" style={{ position: 'relative', overflow: 'hidden' }}>
-                <img src={smallpieceImg.src || smallpieceImg} alt="" style={{ position: 'absolute', top: '20px', right: '-300px', width: '600px', opacity: 0.9, transform: 'rotate(-70deg)', pointerEvents: 'none', zIndex: 0 }} />
+                <Image src={smallpieceImg} alt="" width={600} height={600} aria-hidden="true" style={{ position: 'absolute', top: '20px', right: '-300px', width: '600px', height: 'auto', opacity: 0.9, transform: 'rotate(-70deg)', pointerEvents: 'none', zIndex: 0 }} />
                 <div className="lp-terminal-inner" style={{ position: 'relative', zIndex: 1 }}>
                     <Reveal delay={120}>
-                        <img src={setinImg.src || setinImg} alt="See it in action" style={{ width: '100%', height: 'auto', borderRadius: '16px', display: 'block', margin: '0 auto' }} />
+                        <Image src={setinImg} alt="See it in action" width={1200} height={800} style={{ width: '100%', height: 'auto', borderRadius: '16px', display: 'block', margin: '0 auto' }} />
                     </Reveal>
                 </div>
             </section>
 
             {/* ── Live On-chain Campaign ── */}
             <section className="lp-campaign" id="campaign" style={{ position: 'relative', overflow: 'hidden' }}>
-                <img src={smallpieceImg.src || smallpieceImg} alt="" style={{ position: 'absolute', top: '60px', left: '-300px', width: '600px', opacity: 0.9, transform: 'rotate(110deg)', pointerEvents: 'none', zIndex: 0 }} />
+                <Image src={smallpieceImg} alt="" width={600} height={600} aria-hidden="true" style={{ position: 'absolute', top: '60px', left: '-300px', width: '600px', height: 'auto', opacity: 0.9, transform: 'rotate(110deg)', pointerEvents: 'none', zIndex: 0 }} />
                 <div className="lp-campaign-inner" style={{ position: 'relative', zIndex: 1 }}>
                     <Reveal delay={120}>
-                        <img src={crowdfundImg.src || crowdfundImg} alt="Crowdfunding campaign" style={{ width: '100%', height: 'auto', borderRadius: '16px' }} />
+                        <Image src={crowdfundImg} alt="Crowdfunding campaign" width={900} height={600} style={{ width: '100%', height: 'auto', borderRadius: '16px' }} />
                     </Reveal>
                     <Reveal className="lp-campaign-copy">
                         <div className="lp-section-eyebrow">[ Powered by Soroban ]</div>
@@ -517,7 +540,7 @@ function Header() {
 
             {/* ── Smart Contracts ── */}
             <section className="lp-contracts" id="contracts" style={{ position: 'relative', overflow: 'hidden' }}>
-                <img src={smallpieceImg.src || smallpieceImg} alt="" style={{ position: 'absolute', bottom: '-10%', right: '-350px', width: '700px', opacity: 0.9, transform: 'rotate(160deg)', pointerEvents: 'none', zIndex: 0 }} />
+                <Image src={smallpieceImg} alt="" width={700} height={700} aria-hidden="true" style={{ position: 'absolute', bottom: '-10%', right: '-350px', width: '700px', height: 'auto', opacity: 0.9, transform: 'rotate(160deg)', pointerEvents: 'none', zIndex: 0 }} />
                 <div className="lp-section-inner" style={{ position: 'relative', zIndex: 1 }}>
                     <Reveal>
                         <div className="lp-section-eyebrow">On-chain architecture</div>
@@ -570,7 +593,7 @@ function Header() {
                                 </div>
                             </div>
                             <div style={{ flex: '1 1 400px', position: 'relative', minHeight: '450px' }}>
-                                <img src={feedbackImg.src || feedbackImg} alt="Glass curve" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+                                <Image src={feedbackImg} alt="Glass curve" width={600} height={450} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
                             </div>
                         </div>
                     </Reveal>
@@ -578,7 +601,7 @@ function Header() {
             </section>
 
             {/* ── FAQ ── */}
-            <section className="lp-faq" id="faq" style={{ backgroundImage: `url(${faqBgImg.src || faqBgImg})`, backgroundSize: 'cover', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat' }}>
+            <section className="lp-faq" id="faq" style={{ backgroundImage: `url(${faqBgImg.src})`, backgroundSize: 'cover', backgroundPosition: 'bottom center', backgroundRepeat: 'no-repeat' }}>
                 <div className="lp-section-inner lp-faq-inner">
                     <Reveal className="lp-faq-head">
                         <div className="lp-section-eyebrow">FAQ</div>
@@ -591,7 +614,7 @@ function Header() {
 
             {/* ── CTA ── */}
             <section className="lp-cta" id="cta">
-                <Reveal className="lp-cta-card" style={{ backgroundImage: `url(${footerBgImg.src || footerBgImg})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', overflow: 'hidden', padding: '100px 40px' }}>
+                <Reveal className="lp-cta-card" style={{ backgroundImage: `url(${footerBgImg.src})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', overflow: 'hidden', padding: '100px 40px' }}>
                     <div style={{ position: 'relative', zIndex: 1 }}>
                         <h2 className="lp-cta-title">Ready to send your first payment?</h2>
                         <p className="lp-cta-sub">Connect your wallet and experience the speed of Stellar — no sign-up, no custodian, no fees.</p>
@@ -657,7 +680,7 @@ function Header() {
                 {/* Logo & CTA Row */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '20px', maxWidth: '1200px', margin: '0 auto 40px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <img src={logoImg.src || logoImg} alt="LynxX logo" style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
+                        <Image src={logoImg} alt="LynxX logo" width={32} height={32} style={{ width: '32px', height: '32px', objectFit: 'contain', filter: 'brightness(0) invert(1)' }} />
                         <span style={{ fontSize: '1.25rem', fontWeight: 'bold', letterSpacing: '0.05em' }}>LynxX</span>
                     </div>
                     <div style={{ display: 'flex', gap: '16px' }}>
@@ -692,9 +715,12 @@ function Header() {
             {/* Sidebar */}
             <aside className="bento-sidebar">
                 <div className="bento-logo" style={{ display: 'flex', justifyContent: 'center' }}>
-                    <img 
-                        src={mainCatImg.src || mainCatImg}
+                    <Image 
+                        src={mainCatImg}
                         alt="LynxX logo" 
+                        width={140}
+                        height={140}
+                        priority
                         onClick={handleDisconnect}
                         style={{ cursor: 'pointer', height: '140px', width: 'auto', objectFit: 'contain' }}
                     />
@@ -751,10 +777,13 @@ function Header() {
                 {activeView === 'send' ? (
                     <div style={{ display: 'flex', width: '100%', alignItems: 'flex-start', justifyContent: 'center', padding: '40px 20px', position: 'relative', flexShrink: 0 }}>
                         {/* Right-side ribbon background */}
-                        <img 
-                            src={ribbonImg.src || ribbonImg} 
+                        <Image 
+                            src={ribbonImg} 
                             alt="" 
-                            style={{ position: 'absolute', right: '-25%', top: '50%', transform: 'translateY(-50%)', height: '110%', opacity: 0.5, pointerEvents: 'none', zIndex: 0 }} 
+                            width={500}
+                            height={900}
+                            aria-hidden="true"
+                            style={{ position: 'absolute', right: '-25%', top: '50%', transform: 'translateY(-50%)', height: '110%', width: 'auto', opacity: 0.5, pointerEvents: 'none', zIndex: 0 }} 
                         />
                         <div className="bento-card bento-send-card" style={{ maxWidth: '600px', width: '100%', position: 'relative', zIndex: 1, background: 'rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(24px)', border: '1px solid rgba(255, 255, 255, 0.1)', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.3)' }}>
                             <div className="bento-card-header">

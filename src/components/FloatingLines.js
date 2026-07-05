@@ -253,6 +253,8 @@ export default function FloatingLines({
   const currentInfluenceRef = useRef(0);
   const targetParallaxRef = useRef(new Vector2(0, 0));
   const currentParallaxRef = useRef(new Vector2(0, 0));
+  // Track visibility so the render loop pauses when off-screen
+  const isVisibleRef = useRef(false);
 
   const getLineCount = waveType => {
     if (typeof lineCount === 'number') return lineCount;
@@ -281,14 +283,16 @@ export default function FloatingLines({
     if (!container) return;
 
     let active = true;
+    let raf = 0;
 
     const scene = new Scene();
 
     const camera = new OrthographicCamera(-1, 1, 1, -1, 0, 1);
     camera.position.z = 1;
 
+    // Cap pixel ratio at 1.5 — reduces GPU load on high-DPI screens with no visible quality difference
     const renderer = new WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.domElement.style.width = '100%';
     renderer.domElement.style.height = '100%';
     container.appendChild(renderer.domElement);
@@ -390,6 +394,15 @@ export default function FloatingLines({
 
     if (ro) ro.observe(container);
 
+    // IntersectionObserver — pause render loop when the canvas leaves the viewport
+    const io = typeof IntersectionObserver !== 'undefined'
+      ? new IntersectionObserver(
+          (entries) => { isVisibleRef.current = entries[0].isIntersecting; },
+          { threshold: 0 }
+        )
+      : null;
+    if (io) io.observe(container);
+
     const handlePointerMove = event => {
       const rect = renderer.domElement.getBoundingClientRect();
       const x = event.clientX - rect.left;
@@ -417,26 +430,29 @@ export default function FloatingLines({
       renderer.domElement.addEventListener('pointerleave', handlePointerLeave);
     }
 
-    let raf = 0;
     const renderLoop = () => {
       if (!active) return;
 
-      uniforms.iTime.value = clock.getElapsedTime();
+      // Skip rendering when the canvas is not visible — saves GPU on initial load
+      if (isVisibleRef.current) {
+        uniforms.iTime.value = clock.getElapsedTime();
 
-      if (interactive) {
-        currentMouseRef.current.lerp(targetMouseRef.current, mouseDamping);
-        uniforms.iMouse.value.copy(currentMouseRef.current);
+        if (interactive) {
+          currentMouseRef.current.lerp(targetMouseRef.current, mouseDamping);
+          uniforms.iMouse.value.copy(currentMouseRef.current);
 
-        currentInfluenceRef.current += (targetInfluenceRef.current - currentInfluenceRef.current) * mouseDamping;
-        uniforms.bendInfluence.value = currentInfluenceRef.current;
+          currentInfluenceRef.current += (targetInfluenceRef.current - currentInfluenceRef.current) * mouseDamping;
+          uniforms.bendInfluence.value = currentInfluenceRef.current;
+        }
+
+        if (parallax) {
+          currentParallaxRef.current.lerp(targetParallaxRef.current, mouseDamping);
+          uniforms.parallaxOffset.value.copy(currentParallaxRef.current);
+        }
+
+        renderer.render(scene, camera);
       }
 
-      if (parallax) {
-        currentParallaxRef.current.lerp(targetParallaxRef.current, mouseDamping);
-        uniforms.parallaxOffset.value.copy(currentParallaxRef.current);
-      }
-
-      renderer.render(scene, camera);
       raf = requestAnimationFrame(renderLoop);
     };
     renderLoop();
@@ -447,6 +463,7 @@ export default function FloatingLines({
       cancelAnimationFrame(raf);
 
       if (ro) ro.disconnect();
+      if (io) io.disconnect();
 
       if (interactive) {
         renderer.domElement.removeEventListener('pointermove', handlePointerMove);
