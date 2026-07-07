@@ -13,9 +13,9 @@ use soroban_sdk::{
 #[contracttype]
 #[derive(Clone)]
 pub enum DataKey {
-    Admin,          // the StellarFund contract authorized to call `award`
-    Tier(Address),  // current badge tier per donor (1=Bronze, 2=Silver, 3=Gold)
-    Minted,         // count of unique donors who have earned a badge
+    Admin,         // the StellarFund contract authorized to call `award`
+    Tier(Address), // current badge tier per donor (1=Bronze, 2=Silver, 3=Gold)
+    Minted,        // count of unique donors who have earned a badge
 }
 
 #[contracterror]

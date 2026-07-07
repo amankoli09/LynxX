@@ -7,7 +7,7 @@ publish = false
 [dependencies]
 soroban-sdk = { workspace = true }
 
-[dev_dependencies]
+[dev-dependencies]
 soroban-sdk = { workspace = true, features = ["testutils"] }
 fund = { path = "../fund" }
 

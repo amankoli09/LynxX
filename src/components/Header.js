@@ -7,6 +7,7 @@ import {
     Copy as CopyIcon, QrCode, CreditCard, Layers, ArrowUpRight, ArrowDownLeft 
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import dynamic from "next/dynamic";
 
 // ── Always-needed components (loaded eagerly) ──
@@ -348,6 +349,7 @@ function Header() {
                             <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>How it works</span>
                             <span className="cf-nav-link" onClick={() => { setActiveView('home'); setTimeout(() => document.getElementById('campaign')?.scrollIntoView({ behavior: 'smooth' }), 50); }}>Crowdfund</span>
                             <span className={`cf-nav-link ${activeView === 'analytics' ? 'cf-nav-active' : ''}`} onClick={() => { setActiveView('analytics'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>Analytics</span>
+                            <Link href="/docs" className="cf-nav-link" style={{ textDecoration: 'none' }}>Docs</Link>
                         </div>
                     </div>
                     <button id="btn-connect-nav" className="cf-nav-cta-glass" onClick={handleConnect} disabled={isConnecting}>
@@ -669,7 +671,7 @@ function Header() {
                         {/* DEVELOPERS */}
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', minWidth: '140px' }}>
                             <h4 style={{ fontSize: '0.85rem', fontWeight: 'bold', letterSpacing: '0.1em', textTransform: 'uppercase', color: '#fff', marginBottom: '8px' }}>Developers</h4>
-                            <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Documentation</span>
+                            <Link href="/docs" className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s', textDecoration: 'none', display: 'block' }}>Documentation</Link>
                             <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>API Reference</span>
                             <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Stellar Network</span>
                             <span className="lp-footer-link" style={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.7)', cursor: 'pointer', transition: 'color 0.2s' }}>Smart Contracts</span>

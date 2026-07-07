@@ -84,15 +84,36 @@ fn counts_unique_donors() {
 #[should_panic(expected = "HostError: Error(Auth, InvalidAction)")]
 fn test_auth_boundaries_reject_unauthorized() {
     let env = Env::default();
-    
+
     // Deliberately NOT calling env.mock_all_auths() to enforce actual auth checks
     let admin = Address::generate(&env);
     let contract_id = env.register(BadgeContract, (admin.clone(),));
     let client = BadgeContractClient::new(&env, &contract_id);
-    
+
     let donor = Address::generate(&env);
-    
-    // The client award call requires auth from the `admin` contract. 
+
+    // The client award call requires auth from the `admin` contract.
     // Since we aren't mocking auths and we aren't simulating a cross-contract call from `admin`, this will panic.
     client.award(&donor, &1_000_000_000);
+}
+
+#[test]
+fn exact_tier_boundaries() {
+    let (env, _admin, client) = setup();
+    let donor = Address::generate(&env);
+
+    // 1 stroop below bronze
+    assert_eq!(client.award(&donor, &9_999_999), 0);
+    // exact bronze threshold
+    assert_eq!(client.award(&donor, &10_000_000), 1);
+
+    // 1 stroop below silver
+    assert_eq!(client.award(&donor, &99_999_999), 1);
+    // exact silver threshold
+    assert_eq!(client.award(&donor, &100_000_000), 2);
+
+    // 1 stroop below gold
+    assert_eq!(client.award(&donor, &999_999_999), 2);
+    // exact gold threshold
+    assert_eq!(client.award(&donor, &1_000_000_000), 3);
 }

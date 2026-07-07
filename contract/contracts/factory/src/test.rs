@@ -43,3 +43,39 @@ fn test_factory_deploy_and_registry() {
     assert_eq!(fund_client.owner(), owner);
     assert_eq!(fund_client.token(), token);
 }
+
+#[test]
+fn test_factory_deploy_multiple_campaigns() {
+    let env = Env::default();
+    env.mock_all_auths();
+
+    let fund_wasm = include_bytes!("../../../target/wasm32v1-none/release/fund.wasm");
+    let wasm_hash = env.deployer().upload_contract_wasm(fund_wasm.as_slice());
+
+    let factory_id = env.register(FactoryContract, (wasm_hash,));
+    let factory = FactoryContractClient::new(&env, &factory_id);
+
+    let owner1 = Address::generate(&env);
+    let owner2 = Address::generate(&env);
+    let token = Address::generate(&env);
+    let goal = 10_000i128;
+    let deadline = env.ledger().timestamp() + 1000;
+
+    let campaign1 = factory.create_campaign(&owner1, &token, &goal, &deadline);
+    let campaign2 = factory.create_campaign(&owner2, &token, &(goal * 2), &deadline);
+
+    // Verify both are tracked
+    let campaigns = factory.all_campaigns();
+    assert_eq!(campaigns.len(), 2);
+    assert_eq!(campaigns.get(0).unwrap(), campaign1);
+    assert_eq!(campaigns.get(1).unwrap(), campaign2);
+
+    // Verify isolation
+    let fund1 = FundContractClient::new(&env, &campaign1);
+    assert_eq!(fund1.owner(), owner1);
+    assert_eq!(fund1.goal(), 10_000);
+
+    let fund2 = FundContractClient::new(&env, &campaign2);
+    assert_eq!(fund2.owner(), owner2);
+    assert_eq!(fund2.goal(), 20_000);
+}
