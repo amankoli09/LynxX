@@ -112,7 +112,7 @@ impl FundContract {
 
         // Move the asset from the donor into the contract.
         let token: Address = s.get(&DataKey::Token).unwrap();
-        token::Client::new(&env, &token).transfer(&from, &env.current_contract_address(), &amount);
+        token::Client::new(&env, &token).transfer(&from, env.current_contract_address(), &amount);
 
         // Update cumulative total.
         let mut raised: i128 = s.get(&DataKey::Raised).unwrap();

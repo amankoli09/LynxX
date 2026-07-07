@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-
+    "ignoreDeprecations": "6.0",
     "target": "es2022",
     "lib": [
       "dom",
@@ -20,12 +20,12 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
       ]
     },
-    "incremental": true,
     "plugins": [
       {
         "name": "next"

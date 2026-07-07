@@ -18,6 +18,8 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
 
       - name: Cache cargo
         uses: actions/cache@v4
@@ -33,12 +35,11 @@ jobs:
 
       - name: Rust Lints
         run: cargo fmt --check && cargo clippy -- -D warnings
-        working-directory: contract
 
       - name: Security Audit
-        run: |
-          cargo install cargo-audit
-          cargo audit
+        uses: taiki-e/install-action@cargo-audit
+      - name: Run security audit
+        run: cargo audit
         working-directory: contract
 
       - name: Pre-build fund contract to WASM
