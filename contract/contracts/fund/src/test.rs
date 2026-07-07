@@ -22,7 +22,10 @@ fn setup<'a>() -> (Env, Address, Address, Address, FundContractClient<'a>) {
 
     let goal = 500i128;
     let deadline = env.ledger().timestamp() + 1000;
-    let contract_id = env.register(FundContract, (owner.clone(), token_addr.clone(), goal, deadline));
+    let contract_id = env.register(
+        FundContract,
+        (owner.clone(), token_addr.clone(), goal, deadline),
+    );
     let client = FundContractClient::new(&env, &contract_id);
 
     (env, owner, donor, token_addr, client)
@@ -160,7 +163,10 @@ fn donation_awards_badge_cross_contract() {
     // High goal so a single donation doesn't close the campaign.
     let goal = 10_000_000_000i128;
     let deadline = env.ledger().timestamp() + 1000;
-    let fund_id = env.register(FundContract, (owner.clone(), token_addr.clone(), goal, deadline));
+    let fund_id = env.register(
+        FundContract,
+        (owner.clone(), token_addr.clone(), goal, deadline),
+    );
     let fund = FundContractClient::new(&env, &fund_id);
 
     // Deploy the badge contract with the fund contract as its authorized admin.
@@ -192,14 +198,14 @@ fn test_multiple_donors() {
     // First donor donates
     client.donate(&donor1, &100);
     assert_eq!(client.donors(), 1);
-    
+
     // Second donor donates
     client.donate(&donor2, &200);
     assert_eq!(client.donors(), 2);
-    
+
     // Check total raised
     assert_eq!(client.raised(), 300);
-    
+
     // Same donor again, donors count should not increase
     client.donate(&donor1, &50);
     assert_eq!(client.donors(), 2);
@@ -209,21 +215,21 @@ fn test_multiple_donors() {
 #[test]
 fn test_withdraw_after_close() {
     let (env, owner, donor, token_addr, client) = setup();
-    
+
     // Donate exactly the goal to close the campaign
     client.donate(&donor, &500);
     assert!(client.is_closed());
 
     let token_client = token::Client::new(&env, &token_addr);
     let owner_balance_before = token_client.balance(&owner);
-    
+
     // Withdraw after close
     let withdrawn = client.withdraw();
     assert_eq!(withdrawn, 500);
-    
+
     let owner_balance_after = token_client.balance(&owner);
     assert_eq!(owner_balance_after, owner_balance_before + 500);
-    
+
     // Contract balance should be 0
     assert_eq!(token_client.balance(&client.address), 0);
 }
@@ -231,18 +237,18 @@ fn test_withdraw_after_close() {
 #[test]
 fn test_exact_goal_boundary() {
     let (_env, _owner, donor, _token, client) = setup();
-    
+
     // The setup goal is 500.
     // Donate 499, should remain open.
     client.donate(&donor, &499);
     assert!(!client.is_closed());
     assert_eq!(client.raised(), 499);
-    
+
     // Donate exactly 1 to hit 500.
     client.donate(&donor, &1);
     assert!(client.is_closed());
     assert_eq!(client.raised(), 500);
-    
+
     // Donate 1 more, should fail.
     let res = client.try_donate(&donor, &1);
     assert_eq!(res, Err(Ok(Error::CampaignClosed)));

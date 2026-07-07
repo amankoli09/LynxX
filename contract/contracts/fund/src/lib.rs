@@ -21,27 +21,27 @@ pub trait Badge {
 #[contracttype]
 #[derive(Clone)]
 pub enum DataKey {
-    Owner,                  // beneficiary who can withdraw
-    Token,                  // SAC address of the asset being collected
-    Goal,                   // fundraising target (in stroops)
-    Raised,                 // cumulative amount raised (monotonic, for progress)
-    Donors,                 // count of unique donors
-    Closed,                 // true once the goal has been reached
-    Badge,                  // optional DonorBadge contract for cross-contract awards
-    Contribution(Address),  // per-donor running total
-    Deadline,               // campaign expiry (u64 timestamp)
+    Owner,                 // beneficiary who can withdraw
+    Token,                 // SAC address of the asset being collected
+    Goal,                  // fundraising target (in stroops)
+    Raised,                // cumulative amount raised (monotonic, for progress)
+    Donors,                // count of unique donors
+    Closed,                // true once the goal has been reached
+    Badge,                 // optional DonorBadge contract for cross-contract awards
+    Contribution(Address), // per-donor running total
+    Deadline,              // campaign expiry (u64 timestamp)
 }
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    ZeroAmount = 1,      // donation amount must be positive
-    CampaignClosed = 2,  // goal already reached, no more donations
-    NothingRaised = 3,   // withdraw called with an empty balance
-    CampaignExpired = 4, // donation after deadline
+    ZeroAmount = 1,         // donation amount must be positive
+    CampaignClosed = 2,     // goal already reached, no more donations
+    NothingRaised = 3,      // withdraw called with an empty balance
+    CampaignExpired = 4,    // donation after deadline
     CampaignNotExpired = 5, // refund before deadline
-    NoContribution = 6,  // refund with zero contribution
+    NoContribution = 6,     // refund with zero contribution
 }
 
 /// Emitted on every successful donation.
@@ -112,11 +112,7 @@ impl FundContract {
 
         // Move the asset from the donor into the contract.
         let token: Address = s.get(&DataKey::Token).unwrap();
-        token::Client::new(&env, &token).transfer(
-            &from,
-            &env.current_contract_address(),
-            &amount,
-        );
+        token::Client::new(&env, &token).transfer(&from, &env.current_contract_address(), &amount);
 
         // Update cumulative total.
         let mut raised: i128 = s.get(&DataKey::Raised).unwrap();
@@ -148,7 +144,12 @@ impl FundContract {
             s.set(&DataKey::Closed, &true);
         }
 
-        Donated { from, amount, total: raised }.publish(&env);
+        Donated {
+            from,
+            amount,
+            total: raised,
+        }
+        .publish(&env);
         Ok(raised)
     }
 
@@ -175,7 +176,11 @@ impl FundContract {
         }
 
         client.transfer(&env.current_contract_address(), &owner, &balance);
-        Withdrawn { owner, amount: balance }.publish(&env);
+        Withdrawn {
+            owner,
+            amount: balance,
+        }
+        .publish(&env);
         Ok(balance)
     }
 
@@ -184,7 +189,7 @@ impl FundContract {
         donor.require_auth();
 
         let s = env.storage().instance();
-        
+
         let deadline: u64 = s.get(&DataKey::Deadline).unwrap();
         if env.ledger().timestamp() <= deadline {
             return Err(Error::CampaignNotExpired);
@@ -203,7 +208,7 @@ impl FundContract {
 
         // Zero out contribution
         env.storage().persistent().set(&key, &0i128);
-        
+
         // Subtract from total raised
         let mut raised: i128 = s.get(&DataKey::Raised).unwrap();
         raised -= prev;
@@ -211,13 +216,13 @@ impl FundContract {
 
         // Refund the token
         let token: Address = s.get(&DataKey::Token).unwrap();
-        token::Client::new(&env, &token).transfer(
-            &env.current_contract_address(),
-            &donor,
-            &prev,
-        );
+        token::Client::new(&env, &token).transfer(&env.current_contract_address(), &donor, &prev);
 
-        Refunded { to: donor, amount: prev }.publish(&env);
+        Refunded {
+            to: donor,
+            amount: prev,
+        }
+        .publish(&env);
         Ok(prev)
     }
 

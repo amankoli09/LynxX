@@ -1,9 +1,7 @@
 #![no_std]
 //! Factory Contract for LynxX campaigns
 //! Deploys new `fund` contract instances.
-use soroban_sdk::{
-    contract, contractimpl, contracttype, BytesN, Env, Vec, Address, Val, IntoVal,
-};
+use soroban_sdk::{contract, contractimpl, contracttype, Address, BytesN, Env, IntoVal, Val, Vec};
 
 #[contracttype]
 #[derive(Clone)]
@@ -23,7 +21,7 @@ impl FactoryContract {
         let s = env.storage().instance();
         s.set(&DataKey::WasmHash, &wasm_hash);
         s.set(&DataKey::Counter, &0u32);
-        
+
         let empty_campaigns: Vec<Address> = Vec::new(&env);
         s.set(&DataKey::Campaigns, &empty_campaigns);
     }
@@ -38,12 +36,12 @@ impl FactoryContract {
     ) -> Address {
         let s = env.storage().instance();
         let wasm_hash: BytesN<32> = s.get(&DataKey::WasmHash).unwrap();
-        
+
         // Generate a deterministic salt using a counter
         let mut count: u32 = s.get(&DataKey::Counter).unwrap();
         count += 1;
         s.set(&DataKey::Counter, &count);
-        
+
         let mut salt_bytes = [0u8; 32];
         let count_bytes = count.to_be_bytes();
         salt_bytes[28..32].copy_from_slice(&count_bytes);
