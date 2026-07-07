@@ -38,7 +38,7 @@ function useScrollAnimation() {
             (entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        setVisible(prev => new Set([...prev, entry.target.id]));
+                        setVisible(prev => new Set([...Array.from(prev), entry.target.id]));
                     }
                 });
             },
