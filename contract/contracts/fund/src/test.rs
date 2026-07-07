@@ -227,3 +227,23 @@ fn test_withdraw_after_close() {
     // Contract balance should be 0
     assert_eq!(token_client.balance(&client.address), 0);
 }
+
+#[test]
+fn test_exact_goal_boundary() {
+    let (_env, _owner, donor, _token, client) = setup();
+    
+    // The setup goal is 500.
+    // Donate 499, should remain open.
+    client.donate(&donor, &499);
+    assert!(!client.is_closed());
+    assert_eq!(client.raised(), 499);
+    
+    // Donate exactly 1 to hit 500.
+    client.donate(&donor, &1);
+    assert!(client.is_closed());
+    assert_eq!(client.raised(), 500);
+    
+    // Donate 1 more, should fail.
+    let res = client.try_donate(&donor, &1);
+    assert_eq!(res, Err(Ok(Error::CampaignClosed)));
+}

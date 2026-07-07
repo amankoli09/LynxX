@@ -31,6 +31,16 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
 
+      - name: Rust Lints
+        run: cargo fmt --check && cargo clippy -- -D warnings
+        working-directory: contract
+
+      - name: Security Audit
+        run: |
+          cargo install cargo-audit
+          cargo audit
+        working-directory: contract
+
       - name: Pre-build fund contract to WASM
         run: |
           rustup target add wasm32v1-none
@@ -57,6 +67,12 @@ jobs:
 
       - name: Install dependencies
         run: pnpm config set ignore-scripts true && pnpm install
+
+      - name: Frontend Lints
+        run: pnpm run lint
+
+      - name: Frontend Tests
+        run: pnpm run test
 
       - name: Build production bundle
         run: pnpm run build
