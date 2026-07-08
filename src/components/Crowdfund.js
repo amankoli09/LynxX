@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ExternalLink } from "lucide-react";
 import {
@@ -73,12 +74,14 @@ await refresh();
 const newTier = await getBadgeTier(address);
 
 if (oldTier !== newTier) {
-   alert(`🎉 Congratulations! Your badge tier is now ${newTier}`);
+   toast.success(`🎉 Congratulations! Your badge tier is now ${newTier}`);
 }
             onDonated?.();
         } catch (e) {
             setStatus("error");
-            setErrorMsg(e instanceof FundError ? e.message : e?.message || "Donation failed. Please try again.");
+            const msg = e instanceof FundError ? e.message : e?.message || "Donation failed. Please try again.";
+            setErrorMsg(msg);
+            toast.error(msg);
         }
     };
 
@@ -100,15 +103,20 @@ if (oldTier !== newTier) {
 
             {/* ── Progress ── */}
             <div className="cf-progress-row">
-                <span className="cf-raised">{campaign ? fmt(campaign.raisedXlm) : "—"} <span className="cf-unit">XLM</span></span>
-                <span className="cf-goal">of {campaign ? fmt(campaign.goalXlm) : "—"} goal</span>
+                <span className="cf-raised">
+                    {!campaign ? <div style={{ height: '2rem', width: '100px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '8px', display: 'inline-block', animation: 'pulse 1.5s infinite' }} /> : fmt(campaign.raisedXlm)} 
+                    {campaign && <span className="cf-unit">XLM</span>}
+                </span>
+                <span className="cf-goal">
+                    {!campaign ? <div style={{ height: '1.2rem', width: '80px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '6px', display: 'inline-block', animation: 'pulse 1.5s infinite' }} /> : `of ${fmt(campaign.goalXlm)} goal`}
+                </span>
             </div>
             <div className="cf-bar">
-                <div className="cf-bar-fill" style={{ width: `${pct}%` }} />
+                <div className="cf-bar-fill" style={{ width: `${pct}%`, transition: 'width 1s ease-in-out' }} />
             </div>
             <div className="cf-meta">
-                <span>{campaign ? pct.toFixed(1) : "0"}% funded</span>
-                <span>{campaign ? campaign.donors : 0} donor{campaign && campaign.donors === 1 ? "" : "s"}</span>
+                <span>{!campaign ? <div style={{ height: '1rem', width: '60px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '4px', display: 'inline-block', animation: 'pulse 1.5s infinite' }} /> : `${pct.toFixed(1)}% funded`}</span>
+                <span>{!campaign ? <div style={{ height: '1rem', width: '60px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '4px', display: 'inline-block', animation: 'pulse 1.5s infinite' }} /> : `${campaign.donors} donor${campaign.donors === 1 ? "" : "s"}`}</span>
             </div>
 
             {/* ── Donate form (only when a wallet is connected) ── */}

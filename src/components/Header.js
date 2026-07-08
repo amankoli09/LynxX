@@ -1,4 +1,5 @@
 "use client";
+import { toast as sonnerToast } from "sonner";
 
 import { useState, useEffect } from "react";
 import { 
@@ -136,9 +137,10 @@ function Header() {
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
 
+    const [isLoadingBalance, setIsLoadingBalance] = useState(false);
     const showToast = (message, type = 'error') => {
-        setToast({ message, type });
-        setTimeout(() => setToast(null), 3000);
+        if (type === 'error') sonnerToast.error(message);
+        else sonnerToast.success(message);
     };
 
     // Sticky-nav: add a solid background once the user scrolls past the hero top.
@@ -174,9 +176,16 @@ function Header() {
         const savedPk = localStorage.getItem("connected_wallet");
         if (savedPk) {
             setAddress(savedPk);
+            setIsLoadingBalance(true);
             fetchBalance(savedPk)
-                .then(bal => setBalance(Number(bal).toFixed(2)))
-                .catch(e => console.error("Could not fetch balance on reconnect:", e));
+                .then(bal => {
+                    setBalance(Number(bal).toFixed(2));
+                    setIsLoadingBalance(false);
+                })
+                .catch(e => {
+                    console.error("Could not fetch balance on reconnect:", e);
+                    setIsLoadingBalance(false);
+                });
             setTxHistory(loadHistory(savedPk));
         }
     }, []);
@@ -186,8 +195,10 @@ function Header() {
         try {
             const pk  = await connectWallet();
             setAddress(pk);
+            setIsLoadingBalance(true);
             const bal = await fetchBalance(pk);
             setBalance(Number(bal).toFixed(2));
+            setIsLoadingBalance(false);
             // Save session to localStorage
             localStorage.setItem("connected_wallet", pk);
             // Restore this wallet's history from localStorage
@@ -206,6 +217,7 @@ function Header() {
                 message: errorMessage,
                 showInstall: e?.code === "NotInstalled",
             });
+            setIsLoadingBalance(false);
         } finally { setIsConnecting(false); }
     };
 
@@ -237,8 +249,12 @@ function Header() {
             setTxHistory(updated);
             saveHistory(address, updated);   // persist to localStorage
             setRecipient(""); setAmount("");
+            
+            setIsLoadingBalance(true);
             const bal = await fetchBalance(address);
             setBalance(Number(bal).toFixed(2));
+            setIsLoadingBalance(false);
+            
             const newNotif = { id: Date.now(), text: "You have been successfully transaction", date: new Date().toLocaleTimeString(), read: false };
             setNotifications(prev => [newNotif, ...prev]);
             showToast("Transaction successful!", "success");
@@ -246,6 +262,7 @@ function Header() {
             console.error(e);
             setStatus("error");
             showToast(e?.message || "Transaction failed. Please try again.", "error");
+            setIsLoadingBalance(false);
         } finally { setIsSending(false); }
     };
 
@@ -257,14 +274,17 @@ function Header() {
         setIsSending(true);
         try {
             const txHash = await donate(address, "20");
+            setIsLoadingBalance(true);
             const bal = await fetchBalance(address);
             setBalance(Number(bal).toFixed(2));
+            setIsLoadingBalance(false);
             const newNotif = { id: Date.now(), text: "You have been successfully transaction", date: new Date().toLocaleTimeString(), read: false };
             setNotifications(prev => [newNotif, ...prev]);
             showToast(`Donated 20 XLM! Hash: ${txHash.slice(0, 8)}...`, "success");
         } catch (e) {
             console.error(e);
             showToast(e?.message || "Donation failed.", "error");
+            setIsLoadingBalance(false);
         } finally {
             setIsSending(false);
         }
@@ -273,9 +293,14 @@ function Header() {
     const refreshBalance = async () => {
         if (!address) return;
         try {
+            setIsLoadingBalance(true);
             const bal = await fetchBalance(address);
             setBalance(Number(bal).toFixed(2));
-        } catch (e) { console.warn("balance refresh failed", e); }
+            setIsLoadingBalance(false);
+        } catch (e) { 
+            console.warn("balance refresh failed", e);
+            setIsLoadingBalance(false);
+        }
     };
 
     const short = addr => addr ? `${addr.slice(0,8)}...${addr.slice(-8)}` : "";
@@ -887,10 +912,18 @@ function Header() {
                                 </div>
                             </div>
                             <div className="bento-balance-amount" style={{ fontSize: '4.5rem', marginTop: '1rem', marginBottom: '1rem' }}>
-                                {isBalanceVisible ? balance : '******'} <span>XLM</span>
+                                {isLoadingBalance ? (
+                                    <div style={{ height: '5rem', width: '200px', backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '12px', display: 'inline-block', animation: 'pulse 1.5s infinite' }} />
+                                ) : (
+                                    <>{isBalanceVisible ? balance : '******'} <span>XLM</span></>
+                                )}
                             </div>
                             <div className="bento-balance-usd" style={{ fontSize: '1.2rem' }}>
-                                {isBalanceVisible ? `≈ $${(balance * 0.328).toFixed(2)} USD` : '******'}
+                                {isLoadingBalance ? (
+                                    <div style={{ height: '1.5rem', width: '100px', backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: '8px', animation: 'pulse 1.5s infinite' }} />
+                                ) : (
+                                    isBalanceVisible ? `≈ $${(balance * 0.328).toFixed(2)} USD` : '******'
+                                )}
                             </div>
                             
                             {/* Mock Sparkline */}

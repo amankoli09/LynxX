@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { StellarWalletsKit } from "@creit.tech/stellar-wallets-kit";
 import { defaultModules } from "@creit.tech/stellar-wallets-kit/modules/utils";
 import { Horizon, TransactionBuilder, Networks, Asset, Operation } from "@stellar/stellar-sdk";
@@ -36,7 +37,7 @@ export const fetchBalance = async (publicKey) => {
         const nativeBalance = account.balances.find((b) => b.asset_type === "native");
         return nativeBalance ? nativeBalance.balance : "0";
     } catch (error) {
-        console.error("Error fetching balance:", error);
+        toast.error("Could not fetch balance from network.");
         throw new Error("Could not fetch balance");
     }
 };
@@ -73,17 +74,18 @@ export const sendPayment = async (sender, recipient, amount) => {
         // Submit the transaction
         const tx = TransactionBuilder.fromXDR(signedTxXdr, Networks.TESTNET);
         const result = await server.submitTransaction(tx);
+        toast.success("Payment sent successfully!");
         return result.hash;
     } catch (error) {
-        console.error("Error sending payment:", error);
-
         // Surface Horizon result_codes if available
         const extras = error?.response?.data?.extras;
         if (extras?.result_codes) {
             const codes = Object.values(extras.result_codes).flat().join(', ');
+            toast.error(`Transaction rejected: ${codes}`);
             throw new Error(`Transaction rejected: ${codes}`);
         }
 
+        toast.error(error.message || "Error sending payment");
         throw error instanceof Error ? error : new Error(String(error));
     }
 };
