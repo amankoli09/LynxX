@@ -38,12 +38,12 @@ pub enum DataKey {
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    ZeroAmount = 1,         // donation amount must be positive
-    CampaignClosed = 2,     // goal already reached, no more donations
-    NothingRaised = 3,      // withdraw called with an empty balance
-    CampaignExpired = 4,    // donation after deadline
-    CampaignNotExpired = 5, // refund before deadline
-    NoContribution = 6,     // refund with zero contribution
+    ZeroAmount = 1,          // donation amount must be positive
+    CampaignClosed = 2,      // goal already reached, no more donations
+    NothingRaised = 3,       // withdraw called with an empty balance
+    CampaignExpired = 4,     // donation after deadline
+    CampaignNotExpired = 5,  // refund before deadline
+    NoContribution = 6,      // refund with zero contribution
     MilestoneNotReached = 7, // withdraw called but no new milestone reached
 }
 
@@ -81,7 +81,14 @@ pub struct FundContract;
 #[contractimpl]
 impl FundContract {
     /// Initialize the campaign at deploy time.
-    pub fn __constructor(env: Env, owner: Address, token: Address, goal: i128, deadline: u64, milestones: soroban_sdk::Vec<i128>) {
+    pub fn __constructor(
+        env: Env,
+        owner: Address,
+        token: Address,
+        goal: i128,
+        deadline: u64,
+        milestones: soroban_sdk::Vec<i128>,
+    ) {
         let s = env.storage().instance();
         s.set(&DataKey::Owner, &owner);
         s.set(&DataKey::Token, &token);
@@ -194,7 +201,10 @@ impl FundContract {
         let client = token::Client::new(&env, &token);
         client.transfer(&env.current_contract_address(), &owner, &withdrawable);
 
-        s.set(&DataKey::AmountWithdrawn, &(amount_withdrawn + withdrawable));
+        s.set(
+            &DataKey::AmountWithdrawn,
+            &(amount_withdrawn + withdrawable),
+        );
 
         Withdrawn {
             owner,

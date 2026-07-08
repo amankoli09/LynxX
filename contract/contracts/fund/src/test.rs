@@ -25,7 +25,13 @@ fn setup<'a>() -> (Env, Address, Address, Address, FundContractClient<'a>) {
     let milestones = soroban_sdk::vec![&env, 250i128, 500i128];
     let contract_id = env.register(
         FundContract,
-        (owner.clone(), token_addr.clone(), goal, deadline, milestones),
+        (
+            owner.clone(),
+            token_addr.clone(),
+            goal,
+            deadline,
+            milestones,
+        ),
     );
     let client = FundContractClient::new(&env, &contract_id);
 
@@ -70,21 +76,21 @@ fn withdraw_transfers_to_owner() {
 #[test]
 fn withdraw_milestone_success() {
     let (_env, _owner, donor, _token, client) = setup();
-    
+
     // Donate 200, which is below the 250 milestone.
     client.donate(&donor, &200);
     let res = client.try_withdraw_milestone();
     assert_eq!(res, Err(Ok(Error::MilestoneNotReached)));
-    
+
     // Donate 100 more, total 300. This unlocks the 250 milestone.
     client.donate(&donor, &100);
     let withdrawn = client.withdraw_milestone();
     assert_eq!(withdrawn, 250);
-    
+
     // Trying to withdraw again should fail, as no new milestone is reached
     let res2 = client.try_withdraw_milestone();
     assert_eq!(res2, Err(Ok(Error::MilestoneNotReached)));
-    
+
     // Donate 200 more, total 500. This unlocks the 500 milestone.
     client.donate(&donor, &200);
     let withdrawn2 = client.withdraw_milestone();
@@ -191,7 +197,13 @@ fn donation_awards_badge_cross_contract() {
     let milestones = soroban_sdk::vec![&env, goal];
     let fund_id = env.register(
         FundContract,
-        (owner.clone(), token_addr.clone(), goal, deadline, milestones),
+        (
+            owner.clone(),
+            token_addr.clone(),
+            goal,
+            deadline,
+            milestones,
+        ),
     );
     let fund = FundContractClient::new(&env, &fund_id);
 
