@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '../index.css';
 import '../App.css';
+import { Toaster } from 'sonner';
 
 // display: 'swap' prevents FOIT — text is readable immediately with fallback font
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -24,7 +25,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body>
-        <div id="root">{children}</div>
+        <div id="root">
+          {children}
+          <Toaster position="top-center" theme="dark" richColors />
+        </div>
       </body>
     </html>
   );
