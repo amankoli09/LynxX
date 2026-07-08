@@ -1,25 +1,12 @@
+export * from "./types";
+export * from "./provider";
+
+import { LynxxWalletProvider } from "./provider";
+
 /**
- * LynxX Wallet SDK
- * Entry point for integrating LynxX into your dApps.
+ * Initializes and returns a new LynxX Wallet Provider instance.
+ * This is the primary entry point for dApps integrating the SDK.
  */
-
-export class LynxxWallet {
-  private network: string;
-
-  constructor(network: "testnet" | "public" = "testnet") {
-    this.network = network;
-  }
-
-  public getNetwork(): string {
-    return this.network;
-  }
-
-  public async connect(): Promise<string> {
-    // Placeholder for actual connection logic
-    return Promise.resolve("G_PLACEHOLDER_ADDRESS");
-  }
-}
-
-export function initLynxx(network: "testnet" | "public" = "testnet"): LynxxWallet {
-  return new LynxxWallet(network);
+export function initLynxx(): LynxxWalletProvider {
+  return new LynxxWalletProvider();
 }
