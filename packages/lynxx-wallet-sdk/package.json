@@ -13,6 +13,7 @@
     }
   },
   "scripts": {
+    "lint": "ESLINT_USE_FLAT_CONFIG=false eslint . --ext .ts",
     "build": "tsup",
     "dev": "tsup --watch",
     "test": "vitest run"
