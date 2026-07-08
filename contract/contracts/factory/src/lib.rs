@@ -33,6 +33,7 @@ impl FactoryContract {
         token: Address,
         goal: i128,
         deadline: u64,
+        milestones: Vec<i128>,
     ) -> Address {
         let s = env.storage().instance();
         let wasm_hash: BytesN<32> = s.get(&DataKey::WasmHash).unwrap();
@@ -48,8 +49,8 @@ impl FactoryContract {
         let salt = BytesN::from_array(&env, &salt_bytes);
 
         // Prepare initialization arguments for the fund contract's constructor
-        // pub fn __constructor(env: Env, owner: Address, token: Address, goal: i128, deadline: u64)
-        let init_args: Vec<Val> = (owner, token, goal, deadline).into_val(&env);
+        // pub fn __constructor(env: Env, owner: Address, token: Address, goal: i128, deadline: u64, milestones: Vec<i128>)
+        let init_args: Vec<Val> = (owner, token, goal, deadline, milestones).into_val(&env);
 
         // Deploy the contract and call its constructor
         let deployed_address = env
