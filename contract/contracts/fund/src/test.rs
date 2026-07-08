@@ -22,9 +22,16 @@ fn setup<'a>() -> (Env, Address, Address, Address, FundContractClient<'a>) {
 
     let goal = 500i128;
     let deadline = env.ledger().timestamp() + 1000;
+    let milestones = soroban_sdk::vec![&env, 250i128, 500i128];
     let contract_id = env.register(
         FundContract,
-        (owner.clone(), token_addr.clone(), goal, deadline),
+        (
+            owner.clone(),
+            token_addr.clone(),
+            goal,
+            deadline,
+            milestones,
+        ),
     );
     let client = FundContractClient::new(&env, &contract_id);
 
@@ -60,10 +67,34 @@ fn withdraw_transfers_to_owner() {
     let token_client = token::Client::new(&env, &token_addr);
     assert_eq!(token_client.balance(&client.address), 300);
 
-    let withdrawn = client.withdraw();
-    assert_eq!(withdrawn, 300);
-    assert_eq!(token_client.balance(&owner), 300);
-    assert_eq!(token_client.balance(&client.address), 0);
+    let withdrawn = client.withdraw_milestone();
+    assert_eq!(withdrawn, 250); // Unlocks the first milestone (250)
+    assert_eq!(token_client.balance(&owner), 250);
+    assert_eq!(token_client.balance(&client.address), 50);
+}
+
+#[test]
+fn withdraw_milestone_success() {
+    let (_env, _owner, donor, _token, client) = setup();
+
+    // Donate 200, which is below the 250 milestone.
+    client.donate(&donor, &200);
+    let res = client.try_withdraw_milestone();
+    assert_eq!(res, Err(Ok(Error::MilestoneNotReached)));
+
+    // Donate 100 more, total 300. This unlocks the 250 milestone.
+    client.donate(&donor, &100);
+    let withdrawn = client.withdraw_milestone();
+    assert_eq!(withdrawn, 250);
+
+    // Trying to withdraw again should fail, as no new milestone is reached
+    let res2 = client.try_withdraw_milestone();
+    assert_eq!(res2, Err(Ok(Error::MilestoneNotReached)));
+
+    // Donate 200 more, total 500. This unlocks the 500 milestone.
+    client.donate(&donor, &200);
+    let withdrawn2 = client.withdraw_milestone();
+    assert_eq!(withdrawn2, 250); // 500 - 250 already withdrawn = 250
 }
 
 #[test]
@@ -87,8 +118,8 @@ fn closes_when_goal_reached() {
 #[test]
 fn withdraw_empty_fails() {
     let (_env, _owner, _donor, _token, client) = setup();
-    let res = client.try_withdraw();
-    assert_eq!(res, Err(Ok(Error::NothingRaised)));
+    let res = client.try_withdraw_milestone();
+    assert_eq!(res, Err(Ok(Error::MilestoneNotReached)));
 }
 
 #[test]
@@ -163,9 +194,16 @@ fn donation_awards_badge_cross_contract() {
     // High goal so a single donation doesn't close the campaign.
     let goal = 10_000_000_000i128;
     let deadline = env.ledger().timestamp() + 1000;
+    let milestones = soroban_sdk::vec![&env, goal];
     let fund_id = env.register(
         FundContract,
-        (owner.clone(), token_addr.clone(), goal, deadline),
+        (
+            owner.clone(),
+            token_addr.clone(),
+            goal,
+            deadline,
+            milestones,
+        ),
     );
     let fund = FundContractClient::new(&env, &fund_id);
 
@@ -224,7 +262,7 @@ fn test_withdraw_after_close() {
     let owner_balance_before = token_client.balance(&owner);
 
     // Withdraw after close
-    let withdrawn = client.withdraw();
+    let withdrawn = client.withdraw_milestone();
     assert_eq!(withdrawn, 500);
 
     let owner_balance_after = token_client.balance(&owner);

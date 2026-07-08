@@ -29,7 +29,8 @@ fn test_factory_deploy_and_registry() {
     let goal = 5000i128;
     let deadline = env.ledger().timestamp() + 1000;
 
-    let campaign_id = factory.create_campaign(&owner, &token, &goal, &deadline);
+    let milestones = soroban_sdk::vec![&env, 5000i128];
+    let campaign_id = factory.create_campaign(&owner, &token, &goal, &deadline, &milestones);
 
     // 4. Verify factory registry updated
     let campaigns = factory.all_campaigns();
@@ -61,8 +62,10 @@ fn test_factory_deploy_multiple_campaigns() {
     let goal = 10_000i128;
     let deadline = env.ledger().timestamp() + 1000;
 
-    let campaign1 = factory.create_campaign(&owner1, &token, &goal, &deadline);
-    let campaign2 = factory.create_campaign(&owner2, &token, &(goal * 2), &deadline);
+    let milestones1 = soroban_sdk::vec![&env, goal];
+    let campaign1 = factory.create_campaign(&owner1, &token, &goal, &deadline, &milestones1);
+    let milestones2 = soroban_sdk::vec![&env, goal * 2];
+    let campaign2 = factory.create_campaign(&owner2, &token, &(goal * 2), &deadline, &milestones2);
 
     // Verify both are tracked
     let campaigns = factory.all_campaigns();

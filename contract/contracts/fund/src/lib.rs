@@ -30,18 +30,21 @@ pub enum DataKey {
     Badge,                 // optional DonorBadge contract for cross-contract awards
     Contribution(Address), // per-donor running total
     Deadline,              // campaign expiry (u64 timestamp)
+    Milestones,            // list of targets for milestone-based withdrawal
+    AmountWithdrawn,       // how much has been withdrawn so far
 }
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
 #[repr(u32)]
 pub enum Error {
-    ZeroAmount = 1,         // donation amount must be positive
-    CampaignClosed = 2,     // goal already reached, no more donations
-    NothingRaised = 3,      // withdraw called with an empty balance
-    CampaignExpired = 4,    // donation after deadline
-    CampaignNotExpired = 5, // refund before deadline
-    NoContribution = 6,     // refund with zero contribution
+    ZeroAmount = 1,          // donation amount must be positive
+    CampaignClosed = 2,      // goal already reached, no more donations
+    NothingRaised = 3,       // withdraw called with an empty balance
+    CampaignExpired = 4,     // donation after deadline
+    CampaignNotExpired = 5,  // refund before deadline
+    NoContribution = 6,      // refund with zero contribution
+    MilestoneNotReached = 7, // withdraw called but no new milestone reached
 }
 
 /// Emitted on every successful donation.
@@ -78,7 +81,14 @@ pub struct FundContract;
 #[contractimpl]
 impl FundContract {
     /// Initialize the campaign at deploy time.
-    pub fn __constructor(env: Env, owner: Address, token: Address, goal: i128, deadline: u64) {
+    pub fn __constructor(
+        env: Env,
+        owner: Address,
+        token: Address,
+        goal: i128,
+        deadline: u64,
+        milestones: soroban_sdk::Vec<i128>,
+    ) {
         let s = env.storage().instance();
         s.set(&DataKey::Owner, &owner);
         s.set(&DataKey::Token, &token);
@@ -87,6 +97,8 @@ impl FundContract {
         s.set(&DataKey::Donors, &0u32);
         s.set(&DataKey::Closed, &false);
         s.set(&DataKey::Deadline, &deadline);
+        s.set(&DataKey::Milestones, &milestones);
+        s.set(&DataKey::AmountWithdrawn, &0i128);
     }
 
     /// Donate `amount` of the campaign token. Pulls funds from `from` into the
@@ -162,26 +174,44 @@ impl FundContract {
         s.set(&DataKey::Badge, &badge);
     }
 
-    /// Withdraw all collected funds to the beneficiary. Only the owner can call.
-    pub fn withdraw(env: Env) -> Result<i128, Error> {
+    /// Withdraw collected funds based on reached milestones. Only the owner can call.
+    pub fn withdraw_milestone(env: Env) -> Result<i128, Error> {
         let s = env.storage().instance();
         let owner: Address = s.get(&DataKey::Owner).unwrap();
         owner.require_auth();
 
-        let token: Address = s.get(&DataKey::Token).unwrap();
-        let client = token::Client::new(&env, &token);
-        let balance = client.balance(&env.current_contract_address());
-        if balance <= 0 {
-            return Err(Error::NothingRaised);
+        let raised: i128 = s.get(&DataKey::Raised).unwrap();
+        let milestones: soroban_sdk::Vec<i128> = s.get(&DataKey::Milestones).unwrap();
+        let amount_withdrawn: i128 = s.get(&DataKey::AmountWithdrawn).unwrap_or(0);
+
+        // Find the highest milestone amount that has been reached
+        let mut unlocked_amount: i128 = 0;
+        for m in milestones {
+            if raised >= m && m > unlocked_amount {
+                unlocked_amount = m;
+            }
         }
 
-        client.transfer(&env.current_contract_address(), &owner, &balance);
+        let withdrawable = unlocked_amount - amount_withdrawn;
+        if withdrawable <= 0 {
+            return Err(Error::MilestoneNotReached);
+        }
+
+        let token: Address = s.get(&DataKey::Token).unwrap();
+        let client = token::Client::new(&env, &token);
+        client.transfer(&env.current_contract_address(), &owner, &withdrawable);
+
+        s.set(
+            &DataKey::AmountWithdrawn,
+            &(amount_withdrawn + withdrawable),
+        );
+
         Withdrawn {
             owner,
-            amount: balance,
+            amount: withdrawable,
         }
         .publish(&env);
-        Ok(balance)
+        Ok(withdrawable)
     }
 
     /// Refund a donor's contribution if the campaign failed to reach its goal by the deadline.
