@@ -101,7 +101,7 @@ export default function Contracts() {
 
             {/* ── Badge tiers ── */}
             <div style={{ marginTop: '60px' }}>
-                <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#fff', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Donor Tiers</h3>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#fff', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Donor Tiers</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
                     {[
                         { tier: 'Bronze', range: '1 → 99 XLM', num: '1', color: '#cd7f32', img: bronzeImg },
