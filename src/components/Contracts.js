@@ -1,4 +1,9 @@
 import { CONTRACT_ID, BADGE_ID } from "./Fund";
+import Image from "next/image";
+import BorderGlow from "./BorderGlow";
+import bronzeImg from "../media/bronze.png";
+import silverImg from "../media/silver.png";
+import goldImg from "../media/gold.png";
 
 const short = (a) => (a ? `${a.slice(0, 6)}…${a.slice(-6)}` : "Pending deployment");
 const explorer = (id) => `https://stellar.expert/explorer/testnet/contract/${id}`;
@@ -96,14 +101,66 @@ export default function Contracts() {
             </div>
 
             {/* ── Badge tiers ── */}
-            <div className="contract-tiers">
-                <span className="contract-tiers-lbl">Donor tiers</span>
-                <div className="contract-tiers-row">
-                    {TIERS.map((t) => (
-                        <div className={`tier-chip ${t.cls}`} key={t.name}>
-                            <span className="tier-chip-name">{t.name}</span>
-                            <span className="tier-chip-req">{t.req}</span>
-                        </div>
+            <div style={{ marginTop: '60px' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: '600', color: '#fff', marginBottom: '20px', textTransform: 'uppercase', letterSpacing: '0.1em', textAlign: 'center' }}>Donor Tiers</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '24px' }}>
+                    {[
+                        { tier: 'Bronze', range: '1 → 99 XLM', num: '1', color: '#cd7f32', img: bronzeImg, glowColor: '30 70 50' },
+                        { tier: 'Silver', range: '100 → 999 XLM', num: '2', color: '#d4d4d4', img: silverImg, glowColor: '0 0 80' },
+                        { tier: 'Gold', range: '≥ 1,000 XLM', num: '3', color: '#fbbf24', img: goldImg, glowColor: '45 90 60' },
+                    ].map(({ tier, range, num, color, img, glowColor }) => (
+                        <BorderGlow
+                            key={tier}
+                            edgeSensitivity={30}
+                            glowColor={glowColor}
+                            backgroundColor="#000"
+                            borderRadius="80px 20px 80px 20px"
+                            glowRadius={40}
+                            glowIntensity={1}
+                            coneSpread={25}
+                            animated={false}
+                        >
+                            <div style={{
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                aspectRatio: '4 / 5',
+                                position: 'relative',
+                                borderRadius: 'inherit',
+                                overflow: 'hidden'
+                            }}>
+                                {/* Title top-left */}
+                                <div style={{ padding: '40px 32px 0', zIndex: 2, position: 'relative' }}>
+                                    <h4 style={{
+                                        fontSize: '1.8rem',
+                                        fontWeight: '700',
+                                        color: '#fff',
+                                        letterSpacing: '-0.02em',
+                                        lineHeight: 1.1,
+                                        fontFamily: 'system-ui, -apple-system, sans-serif',
+                                    }}>{tier}</h4>
+                                    <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.9rem', marginTop: '8px', fontFamily: 'monospace' }}>{range}</p>
+                                </div>
+
+                                {/* Image fills lower portion */}
+                                <div style={{ flex: 1, position: 'relative', marginTop: '16px' }}>
+                                    <Image
+                                        src={img}
+                                        alt={tier}
+                                        fill
+                                        style={{ objectFit: 'cover', objectPosition: 'center top' }}
+                                    />
+                                    {/* Bottom fade to black */}
+                                    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '80px', background: 'linear-gradient(to top, #000, transparent)' }} />
+                                </div>
+
+                                {/* tier badge bottom right */}
+                                <div style={{ position: 'absolute', bottom: '32px', right: '32px', background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)', border: `1px solid ${color}40`, borderRadius: '12px', padding: '6px 14px', zIndex: 3 }}>
+                                    <span style={{ color, fontSize: '0.8rem', fontWeight: '600', fontFamily: 'monospace' }}>tier = {num}</span>
+                                </div>
+                            </div>
+                        </BorderGlow>
                     ))}
                 </div>
             </div>
