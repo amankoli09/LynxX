@@ -3,6 +3,7 @@ import Image from "next/image";
 import bronzeImg from "../media/bronze.png";
 import silverImg from "../media/silver.png";
 import goldImg from "../media/gold.png";
+
 const short = (a) => (a ? `${a.slice(0, 6)}…${a.slice(-6)}` : "Pending deployment");
 const explorer = (id) => `https://stellar.expert/explorer/testnet/contract/${id}`;
 
