@@ -1,4 +1,16 @@
 "use client";
+// Arrow icon matching cf-hero-cta-icon style
+const ArrowIcon = () => (
+  <div style={{
+    display: "flex", alignItems: "center", justifyContent: "center",
+    width: 34, height: 34, borderRadius: "50%",
+    background: "#fff", color: "#6c38ff", flexShrink: 0,
+  }}>
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    </svg>
+  </div>
+);
 import { useState, useEffect, useCallback } from "react";
 import { getFeedback, submitFeedback } from "../lib/jsonbin";
 
@@ -231,29 +243,28 @@ export default function FeedbackForm({ prefillWallet = "" }) {
           margin-top: 10px;
         }
         .fb-submit-btn {
-          width: 100%;
-          padding: 14px 20px;
-          border-radius: 14px;
-          border: none;
-          cursor: pointer;
-          font-size: 0.9rem;
-          font-weight: 700;
-          letter-spacing: 0.03em;
-          font-family: inherit;
-          background: linear-gradient(135deg, #7c3aed, #4f46e5);
-          color: #fff;
-          transition: opacity 0.2s, transform 0.2s, box-shadow 0.2s;
-          box-shadow: 0 4px 24px rgba(124,58,237,0.3);
-          display: flex;
+          display: inline-flex;
           align-items: center;
-          justify-content: center;
-          gap: 8px;
-          margin-top: 8px;
+          gap: 12px;
+          background: #6c38ff;
+          border: none;
+          border-radius: 100px;
+          padding: 6px 6px 6px 20px;
+          color: #fff;
+          font-family: 'Inter', sans-serif;
+          font-size: 1rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 4px 14px rgba(108, 56, 255, 0.4);
+          margin-top: 12px;
+          width: 100%;
+          justify-content: space-between;
         }
         .fb-submit-btn:hover:not(:disabled) {
-          opacity: 0.9;
+          background: #5b2ee5;
           transform: translateY(-1px);
-          box-shadow: 0 8px 32px rgba(124,58,237,0.4);
+          box-shadow: 0 8px 24px rgba(108,56,255,0.5);
         }
         .fb-submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
         .fb-success-msg {
@@ -453,9 +464,17 @@ export default function FeedbackForm({ prefillWallet = "" }) {
                 id="btn-submit-feedback"
               >
                 {stage === "submitting" ? (
-                  <><div className="fb-spinner" /> Saving...</>
+                  <>
+                    <span>Saving...</span>
+                    <div style={{ display:'flex',alignItems:'center',justifyContent:'center', width:34,height:34,borderRadius:'50%',background:'rgba(255,255,255,0.3)',flexShrink:0 }}>
+                      <div className="fb-spinner" />
+                    </div>
+                  </>
                 ) : (
-                  "Submit Feedback →"
+                  <>
+                    <span>Submit Feedback</span>
+                    <ArrowIcon />
+                  </>
                 )}
               </button>
             </form>
