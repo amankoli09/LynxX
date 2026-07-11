@@ -171,10 +171,10 @@ export default function UserInteractions({ latestAddress }) {
   const [filter, setFilter]             = useState("all");
   const [selectedEntry, setSelectedEntry] = useState(null); // for drawer
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     try {
-      const data = getInteractions();
-      setInteractions(data);
+      const data = await getInteractions();
+      setInteractions(data || []);
       setLoading(false);
     } catch {
       setLoading(false);

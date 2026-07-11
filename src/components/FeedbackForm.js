@@ -93,12 +93,14 @@ export default function FeedbackForm({ prefillWallet = "" }) {
   // Pre-fill wallet when prop changes (user connects wallet)
   useEffect(() => { if (prefillWallet) setWallet(prefillWallet); }, [prefillWallet]);
 
-  const load = useCallback(() => {
+  const load = useCallback(async () => {
     try {
-      const data = getFeedback();
-      setEntries(data);
+      const data = await getFeedback();
+      setEntries(data || []);
       setLoading(false);
-    } catch { setLoading(false); }
+    } catch {
+      setLoading(false);
+    }
   }, []);
 
   useEffect(() => { load(); }, [load]);
@@ -114,17 +116,20 @@ export default function FeedbackForm({ prefillWallet = "" }) {
     setErrMsg("");
     setStage("submitting");
     try {
-      const updated = submitFeedback({ name: name.trim() || "Anonymous", wallet, rating, comment: comment.trim() });
+      const updated = await submitFeedback({ name: name.trim() || "Anonymous", wallet, rating, comment: comment.trim() });
       setEntries(Array.isArray(updated) ? updated : entries);
       setStage("success");
       // Reset form after 2s
       setTimeout(() => {
         setName(""); setRating(0); setComment(""); setStage("idle");
       }, 3000);
-    } catch {
+    } catch (err) {
+      console.error(err);
       setStage("error");
-      setErrMsg("Something went wrong. Please try again.");
-      setTimeout(() => setStage("idle"), 2500);
+      setErrMsg(err.message.includes("not configured") 
+        ? "Database not configured. Feedback cannot be saved globally." 
+        : "Something went wrong. Please try again.");
+      setTimeout(() => setStage("idle"), 4000);
     }
   };
 
