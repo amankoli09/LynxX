@@ -1,147 +1,186 @@
 /**
- * storage.js — Persistent storage for LynxX interactions & feedback.
+ * db.js — Supabase REST client for LynxX
  *
- * Strategy:
- *  1. A "global" dataset is stored in a Next.js API route that writes to a
- *     JSON file. On Vercel this persists for the lifetime of the serverless
- *     function (minutes–hours). For a longer-lived demo we fall back to
- *     seeded data + client-side localStorage so data is never lost for the
- *     visiting user.
- *  2. localStorage is ALWAYS written, so the current user's actions are always
- *     visible immediately without any network round-trip.
- *  3. The API route merges client-submitted entries with its in-memory store
- *     and returns the combined list.
+ * Uses the free Supabase tier as a real shared database so every visitor
+ * (any device, any browser) sees the same feedback and interaction data.
  *
- * This is the simplest production-ready approach for a Vercel-deployed Next.js
- * app that needs cross-user data visibility with zero external dependencies.
+ * HOW TO SET UP (takes ~3 minutes):
+ * ─────────────────────────────────
+ * 1. Go to https://supabase.com → "Start your project" → sign in with GitHub
+ * 2. Create a new project (pick any name, any region, set a DB password)
+ * 3. Once the project is ready, go to Settings → API
+ * 4. Copy "Project URL" and "anon / public" key
+ * 5. In Vercel dashboard → your project → Settings → Environment Variables, add:
+ *      NEXT_PUBLIC_SUPABASE_URL   = (your Project URL)
+ *      NEXT_PUBLIC_SUPABASE_KEY   = (your anon/public key)
+ * 6. In Supabase → SQL Editor, run this SQL once:
+ *
+ *    create table if not exists feedback (
+ *      id          uuid default gen_random_uuid() primary key,
+ *      name        text,
+ *      wallet      text,
+ *      rating      int,
+ *      comment     text,
+ *      created_at  timestamptz default now()
+ *    );
+ *
+ *    create table if not exists interactions (
+ *      id          uuid default gen_random_uuid() primary key,
+ *      address     text,
+ *      action      text,
+ *      amount      text,
+ *      hash        text,
+ *      created_at  timestamptz default now()
+ *    );
+ *
+ *    -- Allow public read + insert (fine for a testnet demo)
+ *    alter table feedback     enable row level security;
+ *    alter table interactions enable row level security;
+ *
+ *    create policy "public read"   on feedback     for select using (true);
+ *    create policy "public insert" on feedback     for insert with check (true);
+ *    create policy "public read"   on interactions for select using (true);
+ *    create policy "public insert" on interactions for insert with check (true);
+ *
+ * 7. Redeploy on Vercel (or `pnpm dev` locally with a .env.local file)
  */
 
-// ── Keys ──────────────────────────────────────────────────────────────────────
-const INTERACTIONS_KEY = "lynxx_interactions_v2";
-const FEEDBACK_KEY     = "lynxx_feedback_v2";
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL  || "";
+const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_KEY  || "";
 
-// ── Seeded "real" data — represents early testnet users ──────────────────────
-// These demonstrate the 10+ user wallet interactions required for Level 4.
-export const SEED_INTERACTIONS = [
-  { address: "GD7XHK...F3T2",  action: "donate",  amount: "20",   hash: "5edecdcb...", timestamp: "2026-07-01T09:12:00Z" },
-  { address: "GCWQY4...A9P1",  action: "send",     amount: "50",   hash: "a1b2c3d4...", timestamp: "2026-07-02T14:22:00Z" },
-  { address: "GDMZPK...B8R7",  action: "connect",  amount: null,   hash: null,          timestamp: "2026-07-02T15:05:00Z" },
-  { address: "GBFJ3N...K2L9",  action: "donate",  amount: "10",   hash: "e5f6g7h8...", timestamp: "2026-07-03T10:44:00Z" },
-  { address: "GA2XLP...Q5M3",  action: "send",     amount: "100",  hash: "i9j0k1l2...", timestamp: "2026-07-04T08:30:00Z" },
-  { address: "GD4RVN...T6W1",  action: "donate",  amount: "50",   hash: "m3n4o5p6...", timestamp: "2026-07-04T19:15:00Z" },
-  { address: "GBXQ7A...C1D4",  action: "connect",  amount: null,   hash: null,          timestamp: "2026-07-05T11:20:00Z" },
-  { address: "GC9PLM...J7K0",  action: "send",     amount: "25",   hash: "q7r8s9t0...", timestamp: "2026-07-05T16:33:00Z" },
-  { address: "GD2ZBW...E3F8",  action: "donate",  amount: "5",    hash: "u1v2w3x4...", timestamp: "2026-07-06T09:55:00Z" },
-  { address: "GBYN8C...H6I2",  action: "send",     amount: "200",  hash: "y5z6a7b8...", timestamp: "2026-07-06T14:10:00Z" },
-  { address: "GAQL5T...N4O9",  action: "donate",  amount: "30",   hash: "c9d0e1f2...", timestamp: "2026-07-07T10:00:00Z" },
-  { address: "GD8MHX...R2S5",  action: "connect",  amount: null,   hash: null,          timestamp: "2026-07-08T08:45:00Z" },
-];
+const isConfigured = () => !!(SUPABASE_URL && SUPABASE_KEY);
 
-export const SEED_FEEDBACK = [
-  { name: "Maya R.",    wallet: "GD7XHK...F3T2", rating: 5, comment: "Settlement in seconds and fees you can't even feel. This is what on-chain payments should always feel like.", timestamp: "2026-07-03T11:00:00Z" },
-  { name: "Daniel K.",  wallet: "GCWQY4...A9P1", rating: 5, comment: "The crowdfunding flow is genuinely trustless — funds go straight into the contract. No backend to trust.", timestamp: "2026-07-04T14:00:00Z" },
-  { name: "Priya S.",   wallet: "GDMZPK...B8R7", rating: 4, comment: "Non-custodial, sign everything in Freighter, and it just works. Exactly the UX I want.", timestamp: "2026-07-05T10:30:00Z" },
-  { name: "James T.",   wallet: "GBFJ3N...K2L9", rating: 5, comment: "The live on-chain analytics are incredible — you can see every donation in real time.", timestamp: "2026-07-06T09:00:00Z" },
-  { name: "Sofia L.",   wallet: "GA2XLP...Q5M3", rating: 5, comment: "Love the donor badge system — gave me Bronze tier on my first donation! 🥉", timestamp: "2026-07-07T15:20:00Z" },
-];
+function headers() {
+  return {
+    "Content-Type": "application/json",
+    "apikey":        SUPABASE_KEY,
+    "Authorization": `Bearer ${SUPABASE_KEY}`,
+    "Prefer":        "return=minimal",
+  };
+}
 
-// ── Local helpers ─────────────────────────────────────────────────────────────
+function endpoint(table, params = "") {
+  return `${SUPABASE_URL}/rest/v1/${table}${params}`;
+}
 
-function readLocal(key) {
+/* ── Feedback ──────────────────────────────────────────────────────────────── */
+
+/**
+ * Fetch all feedback entries, newest first.
+ * Returns [] if Supabase is not configured or the request fails.
+ */
+export async function getFeedback() {
+  if (!isConfigured()) return [];
   try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
-  } catch { return []; }
-}
-
-function writeLocal(key, data) {
-  try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
-}
-
-/**
- * Merge two arrays of entries deduplicating by timestamp.
- */
-function merge(a, b) {
-  const seen = new Set(a.map(e => e.timestamp));
-  const merged = [...a];
-  for (const e of b) {
-    if (!seen.has(e.timestamp)) {
-      seen.add(e.timestamp);
-      merged.push(e);
-    }
+    const res = await fetch(
+      endpoint("feedback", "?select=*&order=created_at.desc&limit=100"),
+      { headers: headers() }
+    );
+    if (!res.ok) throw new Error(`Supabase GET feedback failed: ${res.status}`);
+    const rows = await res.json();
+    // Normalise to the shape the component expects
+    return rows.map(r => ({
+      name:      r.name      || "Anonymous",
+      wallet:    r.wallet    || "",
+      rating:    r.rating    || 5,
+      comment:   r.comment   || "",
+      timestamp: r.created_at,
+    }));
+  } catch (e) {
+    console.warn("getFeedback:", e.message);
+    return [];
   }
-  return merged.sort((x, y) => new Date(y.timestamp) - new Date(x.timestamp));
 }
 
-// ── Public API ────────────────────────────────────────────────────────────────
+/**
+ * Insert a new feedback entry.
+ * @param {{ name:string, wallet:string, rating:number, comment:string }} entry
+ */
+export async function submitFeedback(entry) {
+  if (!isConfigured()) {
+    throw new Error(
+      "Supabase is not configured. Add NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_KEY to your environment variables."
+    );
+  }
+  const wallet = entry.wallet
+    ? `${entry.wallet.slice(0, 6)}...${entry.wallet.slice(-4)}`
+    : "";
+
+  const res = await fetch(endpoint("feedback"), {
+    method:  "POST",
+    headers: headers(),
+    body: JSON.stringify({
+      name:    entry.name?.trim() || "Anonymous",
+      wallet,
+      rating:  entry.rating,
+      comment: entry.comment?.trim(),
+    }),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`submitFeedback failed: ${res.status} — ${text}`);
+  }
+  // Return freshest data
+  return getFeedback();
+}
+
+/* ── Interactions ──────────────────────────────────────────────────────────── */
 
 /**
- * Get all wallet interactions (seed + locally recorded).
+ * Fetch all wallet interactions, newest first.
+ * Returns [] if Supabase is not configured or the request fails.
  */
-export function getInteractions() {
+export async function getInteractions() {
+  if (!isConfigured()) return [];
   try {
-    const local = readLocal(INTERACTIONS_KEY);
-    return merge(local, SEED_INTERACTIONS).slice(0, 100);
-  } catch {
-    return SEED_INTERACTIONS;
+    const res = await fetch(
+      endpoint("interactions", "?select=*&order=created_at.desc&limit=200"),
+      { headers: headers() }
+    );
+    if (!res.ok) throw new Error(`Supabase GET interactions failed: ${res.status}`);
+    const rows = await res.json();
+    return rows.map(r => ({
+      address:   r.address   || "Unknown",
+      action:    r.action    || "connect",
+      amount:    r.amount    || null,
+      hash:      r.hash      || null,
+      timestamp: r.created_at,
+    }));
+  } catch (e) {
+    console.warn("getInteractions:", e.message);
+    return [];
   }
 }
 
 /**
- * Record a new wallet interaction locally.
- * @param {string} address  full wallet address
- * @param {string} action   "connect" | "send" | "donate"
+ * Insert a new wallet interaction.
+ * @param {string} address   full wallet address
+ * @param {string} action    "connect" | "send" | "donate"
  * @param {string|null} amount
  * @param {string|null} hash
  */
-export function recordInteraction(address, action, amount = null, hash = null) {
+export async function recordInteraction(address, action, amount = null, hash = null) {
+  if (!isConfigured()) return; // silently skip if not configured
   try {
-    const local = readLocal(INTERACTIONS_KEY);
-    const entry = {
-      address: address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Unknown",
-      action,
-      amount,
-      hash: hash ? hash.slice(0, 12) + "..." : null,
-      timestamp: new Date().toISOString(),
-    };
-    const updated = [entry, ...local].slice(0, 100);
-    writeLocal(INTERACTIONS_KEY, updated);
-    return merge(updated, SEED_INTERACTIONS);
-  } catch {
-    return SEED_INTERACTIONS;
-  }
-}
+    const shortAddress = address
+      ? `${address.slice(0, 6)}...${address.slice(-4)}`
+      : "Unknown";
+    const shortHash = hash ? hash.slice(0, 12) + "..." : null;
 
-/**
- * Get all feedback entries (seed + locally submitted).
- */
-export function getFeedback() {
-  try {
-    const local = readLocal(FEEDBACK_KEY);
-    return merge(local, SEED_FEEDBACK).slice(0, 50);
-  } catch {
-    return SEED_FEEDBACK;
-  }
-}
-
-/**
- * Submit a new feedback entry locally.
- * @param {{ name: string, wallet: string, rating: number, comment: string }} entry
- */
-export function submitFeedback(entry) {
-  try {
-    const local = readLocal(FEEDBACK_KEY);
-    const newEntry = {
-      ...entry,
-      wallet: entry.wallet
-        ? `${entry.wallet.slice(0, 6)}...${entry.wallet.slice(-4)}`
-        : "Anonymous",
-      timestamp: new Date().toISOString(),
-    };
-    const updated = [newEntry, ...local].slice(0, 50);
-    writeLocal(FEEDBACK_KEY, updated);
-    return merge(updated, SEED_FEEDBACK);
+    await fetch(endpoint("interactions"), {
+      method:  "POST",
+      headers: headers(),
+      body: JSON.stringify({
+        address: shortAddress,
+        action,
+        amount:  amount ? String(amount) : null,
+        hash:    shortHash,
+      }),
+    });
   } catch (e) {
-    throw e;
+    console.warn("recordInteraction:", e.message);
   }
 }
+
+/** Whether Supabase credentials are present in the environment */
+export { isConfigured };
