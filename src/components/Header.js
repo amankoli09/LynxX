@@ -24,14 +24,16 @@ import OnboardingModal, { shouldShowOnboarding } from "./OnboardingModal";
 // ── Below-fold / conditional components (loaded lazily) ──
 // These are only needed after scroll or on user action, so we split them into
 // separate JS chunks that the browser fetches on demand instead of on initial load.
-const Terminal      = dynamic(() => import("./Terminal"),        { ssr: false });
-const Crowdfund     = dynamic(() => import("./Crowdfund"),       { ssr: false });
-const MagicRings    = dynamic(() => import("./MagicRings"),      { ssr: false });
-const Analytics     = dynamic(() => import("./Analytics"),       { ssr: false });
-const Activity      = dynamic(() => import("./Activity"),        { ssr: false });
-const Receive       = dynamic(() => import("./Receive"),         { ssr: false });
+const Terminal        = dynamic(() => import("./Terminal"),        { ssr: false });
+const Crowdfund       = dynamic(() => import("./Crowdfund"),       { ssr: false });
+const MagicRings      = dynamic(() => import("./MagicRings"),      { ssr: false });
+const Analytics       = dynamic(() => import("./Analytics"),       { ssr: false });
+const Activity        = dynamic(() => import("./Activity"),        { ssr: false });
+const Receive         = dynamic(() => import("./Receive"),         { ssr: false });
 const MarketAnalytics = dynamic(() => import("./MarketAnalytics"), { ssr: false });
 const MultiChainSwap  = dynamic(() => import("./motion/swap").then(m => ({ default: m.MultiChainSwap })), { ssr: false });
+const UserInteractions = dynamic(() => import("./UserInteractions"), { ssr: false });
+const FeedbackForm     = dynamic(() => import("./FeedbackForm"),     { ssr: false });
 
 // ── Image imports (used as src strings for Next.js <Image> / CSS) ──
 import mainBG       from "../media/mainBG.png";
@@ -49,6 +51,7 @@ import feedbackImg  from "../media/feedback.png";
 
 import { connectWallet, fetchBalance, sendPayment } from "./Wallet";
 import { donate } from "./Fund";
+import { recordInteraction } from "../lib/jsonbin";
 
 
 /* ── SVG Icons ── */
@@ -136,6 +139,8 @@ function Header() {
     const [toast, setToast] = useState(null);
     const [notifications, setNotifications] = useState([]);
     const [showNotifications, setShowNotifications] = useState(false);
+    // Tracks the last recorded interaction so UserInteractions re-renders
+    const [latestInteraction, setLatestInteraction] = useState(null);
 
     const [isLoadingBalance, setIsLoadingBalance] = useState(false);
     const showToast = (message, type = 'error') => {
@@ -203,6 +208,9 @@ function Header() {
             localStorage.setItem("connected_wallet", pk);
             // Restore this wallet's history from localStorage
             setTxHistory(loadHistory(pk));
+            // ── Record wallet interaction for Level 4 proof ──
+            recordInteraction(pk, "connect");
+            setLatestInteraction({ action: "connect", ts: Date.now() });
         } catch (e) {
             // Show a friendly in-app modal instead of a raw alert. Missing
             // wallet → offer the install link; anything else → explain & retry.
@@ -249,6 +257,9 @@ function Header() {
             setTxHistory(updated);
             saveHistory(address, updated);   // persist to localStorage
             setRecipient(""); setAmount("");
+            // ── Record send interaction ──
+            recordInteraction(address, "send", amount, txHash);
+            setLatestInteraction({ action: "send", ts: Date.now() });
             
             setIsLoadingBalance(true);
             const bal = await fetchBalance(address);
@@ -281,6 +292,9 @@ function Header() {
             const newNotif = { id: Date.now(), text: "You have been successfully transaction", date: new Date().toLocaleTimeString(), read: false };
             setNotifications(prev => [newNotif, ...prev]);
             showToast(`Donated 20 XLM! Hash: ${txHash.slice(0, 8)}...`, "success");
+            // ── Record donation interaction ──
+            recordInteraction(address, "donate", "20", txHash);
+            setLatestInteraction({ action: "donate", ts: Date.now() });
         } catch (e) {
             console.error(e);
             showToast(e?.message || "Donation failed.", "error");
@@ -601,6 +615,25 @@ function Header() {
                         <h2 className="lp-section-title">What people are saying</h2>
                     </Reveal>
                     <Reveal delay={120}><Testimonials /></Reveal>
+                </div>
+            </section>
+
+            {/* ── Live User Interactions ── */}
+            <section id="interactions" style={{ padding: '100px 4%', background: 'rgba(255,255,255,0.01)', borderTop: '1px solid rgba(255,255,255,0.05)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
+                    <Reveal>
+                        <div style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.4)', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, marginBottom: '14px' }}>[ Stellar Testnet ]</div>
+                        <UserInteractions latestAddress={latestInteraction} />
+                    </Reveal>
+                </div>
+            </section>
+
+            {/* ── User Feedback Form ── */}
+            <section id="user-feedback" style={{ padding: '100px 4%' }}>
+                <div style={{ maxWidth: '1080px', margin: '0 auto' }}>
+                    <Reveal>
+                        <FeedbackForm prefillWallet={address || ""} />
+                    </Reveal>
                 </div>
             </section>
 
