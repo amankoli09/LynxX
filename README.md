@@ -387,7 +387,7 @@ LynxX is a **fully deployed, production-ready dApp** on the Stellar Testnet.
 ### 📝 User Feedback & Data Collection
 
 We actively sought feedback from real testnet users to improve LynxX. 
-- **[Google Form - Feedback Collection](https://docs.google.com/forms/d/e/1FAIpQLScP_placeholder_link/viewform)** (Contains Name, Email, Wallet Address, Network, Rating, and 3+ additional questions)
+- **[Google Form - Feedback Collection](https://docs.google.com/forms/d/17-4lBPMPfpVuWlngR7Zm4QEQ-JCOyx6jGd5GQakMVgU/viewform)** (Contains Name, Email, Wallet Address, Network, Rating, and 3+ additional questions)
 - **[Excel Sheet - Form Responses](https://docs.google.com/spreadsheets/d/1RLiAZGmZXy8zKKpWHrXO4e1PM_xt94GsNUG84HQDvDM/edit?usp=sharing)** (Publicly accessible export of all collected data)
 
 ---
