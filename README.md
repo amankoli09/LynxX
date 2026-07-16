@@ -363,7 +363,7 @@ The dApp is fully responsive across mobile, tablet, and desktop.
 
 ## 📄 License
 
-MIT © 2025 — Built for the Stellar Developer Track submission.
+MIT © 2026 — Built for the Stellar Developer Track submission.
 
 ---
 
@@ -388,7 +388,7 @@ LynxX is a **fully deployed, production-ready dApp** on the Stellar Testnet.
 
 We actively sought feedback from real testnet users to improve LynxX. 
 - **[Google Form - Feedback Collection](https://docs.google.com/forms/d/e/1FAIpQLScP_placeholder_link/viewform)** (Contains Name, Email, Wallet Address, Network, Rating, and 3+ additional questions)
-- **[Excel Sheet - Form Responses](https://docs.google.com/spreadsheets/d/1_placeholder_link/edit?usp=sharing)** (Publicly accessible export of all collected data)
+- **[Excel Sheet - Form Responses](https://docs.google.com/spreadsheets/d/1RLiAZGmZXy8zKKpWHrXO4e1PM_xt94GsNUG84HQDvDM/edit?usp=sharing)** (Publicly accessible export of all collected data)
 
 ---
 
