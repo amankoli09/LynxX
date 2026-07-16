@@ -4,6 +4,9 @@ Thank you for your interest in contributing to **LynxX** — a Soroban smart con
 
 We welcome all kinds of contributions: bug fixes, new features, documentation improvements, and more.
 
+## Community
+
+Join our Telegram: https://t.me/+YEH0zvr-kTs2MDU9
 ---
 
 ## 📋 Table of Contents
