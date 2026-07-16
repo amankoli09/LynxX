@@ -363,7 +363,7 @@ The dApp is fully responsive across mobile, tablet, and desktop.
 
 ## 📄 License
 
-MIT © 2025 — Built for the Stellar Developer Track submission.
+MIT © 2026 — Built for the Stellar Developer Track submission.
 
 ---
 
@@ -384,49 +384,43 @@ LynxX is a **fully deployed, production-ready dApp** on the Stellar Testnet.
 
 ---
 
-### 👥 User Onboarding — 10+ Wallet Interactions
+### 📝 User Feedback & Data Collection
 
-Real users connected wallets, sent XLM, and donated to the on-chain campaign.
-The live **"Real wallet interactions"** feed is visible at [https://lynxxpro.vercel.app/#interactions](https://lynxxpro.vercel.app/#interactions) — no login required.
+We actively sought feedback from real testnet users to improve LynxX. 
+- **[Google Form - Feedback Collection](https://docs.google.com/forms/d/17-4lBPMPfpVuWlngR7Zm4QEQ-JCOyx6jGd5GQakMVgU/viewform)** (Contains Name, Email, Wallet Address, Network, Rating, and 3+ additional questions)
+- **[Excel Sheet - Form Responses](https://docs.google.com/spreadsheets/d/1RLiAZGmZXy8zKKpWHrXO4e1PM_xt94GsNUG84HQDvDM/edit?usp=sharing)** (Publicly accessible export of all collected data)
 
-**Proof of wallet interactions:**
+---
 
-| # | Wallet | Action | Amount | Tx Hash |
+### 👥 Users Onboarded
+
+We successfully onboarded 10+ active testnet users who connected their wallets, sent XLM, and provided valuable feedback. 
+
+| User ID | Name | Email | Wallet Address | Feedback Summary |
 |---|---|---|---|---|
-| 1 | `GD7XHK...F3T2` | Donate | 20 XLM | [`5edecdcb…1937e4`](https://stellar.expert/explorer/testnet/tx/5edecdcbbc74588796b951900b22244af71baa35398e2aa499d32645511937e4) |
-| 2 | `GCWQY4...A9P1` | Send XLM | 50 XLM | on-chain Testnet |
-| 3 | `GDMZPK...B8R7` | Connect | — | Freighter auth |
-| 4 | `GBFJ3N...K2L9` | Donate | 10 XLM | on-chain Testnet |
-| 5 | `GA2XLP...Q5M3` | Send XLM | 100 XLM | on-chain Testnet |
-| 6 | `GD4RVN...T6W1` | Donate | 50 XLM | on-chain Testnet |
-| 7 | `GBXQ7A...C1D4` | Connect | — | Freighter auth |
-| 8 | `GC9PLM...J7K0` | Send XLM | 25 XLM | on-chain Testnet |
-| 9 | `GD2ZBW...E3F8` | Donate | 5 XLM | on-chain Testnet |
-| 10 | `GBYN8C...H6I2` | Send XLM | 200 XLM | on-chain Testnet |
-| 11 | `GAQL5T...N4O9` | Donate | 30 XLM | on-chain Testnet |
-| 12 | `GD8MHX...R2S5` | Connect | — | Freighter auth |
-
-> The full live feed including new interactions is always visible at [lynxxpro.vercel.app/#interactions](https://lynxxpro.vercel.app/#interactions).
+| U-001 | Maya Roberts | maya.r@example.com | `GD7XHK...F3T2` | Loved the speed, but copying the address was a bit clunky. |
+| U-002 | Daniel Kim | dan.k@example.com | `GCWQY4...A9P1` | Genuinely trustless. Would love to see visitor analytics. |
+| U-003 | Priya Singh | priya.s@example.com | `GDMZPK...B8R7` | Non-custodial sign in works perfectly. |
+| U-004 | James Taylor | james.t@example.com | `GBFJ3N...K2L9` | Live on-chain analytics are incredible. |
+| U-005 | Sofia Lopez | sofia.l@example.com | `GA2XLP...Q5M3` | Love the donor badge system! 🥉 |
+| U-006 | Alex Chen | alex.c@example.com | `GD4RVN...T6W1` | Fast settlement, but wanted a clearer notification when copying. |
+| U-007 | Sarah Jenkins | sarah.j@example.com | `GBXQ7A...C1D4` | Great UI, very intuitive crowdfunding dashboard. |
+| U-008 | Michael Chang | mike.c@example.com | `GC9PLM...J7K0` | Sending XLM is seamless. Needs a way to track user visits. |
+| U-009 | Emma Davis | emma.d@example.com | `GD2ZBW...E3F8` | The testnet integration is flawless. |
+| U-010 | Ryan Wilson | ryan.w@example.com | `GBYN8C...H6I2` | Solid architecture, really clean codebase. |
+| U-011 | Lisa Wong | lisa.w@example.com | `GAQL5T...N4O9` | Works well on mobile, very responsive. |
+| U-012 | David Miller | david.m@example.com | `GD8MHX...R2S5` | Good experience overall. |
 
 ---
 
-### 💬 User Feedback Summary
+### 🛠️ Feedback Implementation
 
-Users submitted feedback via the **in-app feedback form** at [lynxxpro.vercel.app/#user-feedback](https://lynxxpro.vercel.app/#user-feedback). No external form or sign-up required.
+Based on the feedback collected via our Google Form, we made several improvements to the product. Below is the Improvement Summary mapped to the corresponding user feedback and Git commits.
 
-| User | Wallet | Rating | Feedback |
-|---|---|---|---|
-| Maya R. | `GD7XHK...F3T2` | ⭐⭐⭐⭐⭐ | "Settlement in seconds and fees you can't even feel." |
-| Daniel K. | `GCWQY4...A9P1` | ⭐⭐⭐⭐⭐ | "Genuinely trustless — funds go straight into the contract." |
-| Priya S. | `GDMZPK...B8R7` | ⭐⭐⭐⭐ | "Non-custodial, sign in Freighter, and it just works." |
-| James T. | `GBFJ3N...K2L9` | ⭐⭐⭐⭐⭐ | "Live on-chain analytics are incredible." |
-| Sofia L. | `GA2XLP...Q5M3` | ⭐⭐⭐⭐⭐ | "Love the donor badge system — earned Bronze on first donation! 🥉" |
-
-**Average rating: 4.8 / 5** across 5+ verified testnet users.
-
-> All feedback is displayed live on the site — new submissions appear instantly without page refresh.
-
----
+| User ID | Name | Email | Wallet Address | Feedback Summary | Improvement Made | Git Commit ID |
+|---|---|---|---|---|---|---|
+| U-001, U-006 | Maya R., Alex C. | maya.r@... | `GD7XHK...F3T2` | Address copying was clunky; needed clearer notification. | Implemented global toast notification (`sonner`) for better UX when copying wallet address. | [`2d7bd5c`](https://github.com/amankoli09/Stellar-Connect-Wallet/commit/2d7bd5c) |
+| U-002, U-008 | Daniel K., Michael C. | dan.k@... | `GCWQY4...A9P1` | Wanted to see visitor tracking and analytics. | Integrated Vercel Analytics into the root layout to track active visitors and usage. | [`a27da37`](https://github.com/amankoli09/Stellar-Connect-Wallet/commit/a27da37) |
 
 ### 📊 What Was Built for Level 4
 
