@@ -3,6 +3,7 @@
 import { useState } from "react";
 import QRCode from "react-qr-code";
 import { Copy, CheckCircle2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function Receive({ address }) {
     const [copied, setCopied] = useState(false);
@@ -11,6 +12,7 @@ export default function Receive({ address }) {
         if (!address) return;
         navigator.clipboard.writeText(address);
         setCopied(true);
+        toast.success("Address copied to clipboard!");
         setTimeout(() => setCopied(false), 2000);
     };
 
