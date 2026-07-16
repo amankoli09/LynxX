@@ -6,7 +6,7 @@ We welcome all kinds of contributions: bug fixes, new features, documentation im
 
 ## Community
 
-Join our Telegram: https://t.me/+YEH0zvr-kTs2MDU9
+### Join our Telegram: https://t.me/+YEH0zvr-kTs2MDU9
 ---
 
 ## 📋 Table of Contents
