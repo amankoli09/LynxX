@@ -401,8 +401,8 @@ We successfully onboarded 10+ active testnet users who connected their wallets, 
 | U-001 | Aman Koli | amankoli1206@gmail.com | `GAJG7C...Y27ES` | The clean and intuitive UI, fast wallet creation. |
 | U-002 | Raj Koli | koliraj911@gmail.com | `GDJW4E...3S6N` | Simple wallet connection and smooth user experience. |
 | U-003 | Nandu Kumar | nandauuu6@gmail.com | `GCMHLA...24YKF` | Fast and secure transactions with a simple layout. |
-| U-004 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
-| U-005 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-004 | Avinash Gharat | ateruslab@gmail.com | `GBA7SL...RJTGI` | I like the ui it is good. |
+| U-005 | Namrata | kolinamrata791@gmail.com | `GC3C7B...U2PVB` | I like the receipt feature. |
 | U-006 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
 | U-007 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
 | U-008 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
