@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import '../index.css';
 import '../App.css';
 import { Toaster } from 'sonner';
+import { Analytics } from '@vercel/analytics/react';
 
 // display: 'swap' prevents FOIT — text is readable immediately with fallback font
 const inter = Inter({ subsets: ['latin'], display: 'swap' });
@@ -29,6 +30,7 @@ export default function RootLayout({
           {children}
           <Toaster position="top-center" theme="dark" richColors />
         </div>
+        <Analytics />
       </body>
     </html>
   );
