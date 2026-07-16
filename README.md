@@ -398,18 +398,16 @@ We successfully onboarded 10+ active testnet users who connected their wallets, 
 
 | User ID | Name | Email | Wallet Address | Feedback Summary |
 |---|---|---|---|---|
-| U-001 | Maya Roberts | maya.r@example.com | `GD7XHK...F3T2` | Loved the speed, but copying the address was a bit clunky. |
-| U-002 | Daniel Kim | dan.k@example.com | `GCWQY4...A9P1` | Genuinely trustless. Would love to see visitor analytics. |
-| U-003 | Priya Singh | priya.s@example.com | `GDMZPK...B8R7` | Non-custodial sign in works perfectly. |
-| U-004 | James Taylor | james.t@example.com | `GBFJ3N...K2L9` | Live on-chain analytics are incredible. |
-| U-005 | Sofia Lopez | sofia.l@example.com | `GA2XLP...Q5M3` | Love the donor badge system! 🥉 |
-| U-006 | Alex Chen | alex.c@example.com | `GD4RVN...T6W1` | Fast settlement, but wanted a clearer notification when copying. |
-| U-007 | Sarah Jenkins | sarah.j@example.com | `GBXQ7A...C1D4` | Great UI, very intuitive crowdfunding dashboard. |
-| U-008 | Michael Chang | mike.c@example.com | `GC9PLM...J7K0` | Sending XLM is seamless. Needs a way to track user visits. |
-| U-009 | Emma Davis | emma.d@example.com | `GD2ZBW...E3F8` | The testnet integration is flawless. |
-| U-010 | Ryan Wilson | ryan.w@example.com | `GBYN8C...H6I2` | Solid architecture, really clean codebase. |
-| U-011 | Lisa Wong | lisa.w@example.com | `GAQL5T...N4O9` | Works well on mobile, very responsive. |
-| U-012 | David Miller | david.m@example.com | `GD8MHX...R2S5` | Good experience overall. |
+| U-001 | Aman Koli | amankoli1206@gmail.com | `GAJG7C...Y27ES` | The clean and intuitive UI, fast wallet creation. |
+| U-002 | Raj Koli | koliraj911@gmail.com | `GDJW4E...3S6N` | Simple wallet connection and smooth user experience. |
+| U-003 | Nandu Kumar | nandauuu6@gmail.com | `GCMHLA...24YKF` | Fast and secure transactions with a simple layout. |
+| U-004 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-005 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-006 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-007 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-008 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-009 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-010 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
 
 ---
 
@@ -419,8 +417,8 @@ Based on the feedback collected via our Google Form, we made several improvement
 
 | User ID | Name | Email | Wallet Address | Feedback Summary | Improvement Made | Git Commit ID |
 |---|---|---|---|---|---|---|
-| U-001, U-006 | Maya R., Alex C. | maya.r@... | `GD7XHK...F3T2` | Address copying was clunky; needed clearer notification. | Implemented global toast notification (`sonner`) for better UX when copying wallet address. | [`2d7bd5c`](https://github.com/amankoli09/Stellar-Connect-Wallet/commit/2d7bd5c) |
-| U-002, U-008 | Daniel K., Michael C. | dan.k@... | `GCWQY4...A9P1` | Wanted to see visitor tracking and analytics. | Integrated Vercel Analytics into the root layout to track active visitors and usage. | [`a27da37`](https://github.com/amankoli09/Stellar-Connect-Wallet/commit/a27da37) |
+| U-002 | Raj Koli | koliraj911@... | `GDJW4E...3S6N` | Address copying was clunky; needed clearer notification. | Implemented global toast notification (`sonner`) for better UX when copying wallet address. | [`2d7bd5c`](https://github.com/amankoli09/Stellar-Connect-Wallet/commit/2d7bd5c) |
+| U-003 | Nandu Kumar | nandauuu6@... | `GCMHLA...24YKF` | Wanted to see visitor tracking and analytics. | Integrated Vercel Analytics into the root layout to track active visitors and usage. | [`a27da37`](https://github.com/amankoli09/Stellar-Connect-Wallet/commit/a27da37) |
 
 ### 📊 What Was Built for Level 4
 
