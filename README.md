@@ -403,8 +403,8 @@ We successfully onboarded 10+ active testnet users who connected their wallets, 
 | U-003 | Nandu Kumar | nandau***@gmail.com | `GCMHLA...24YKF` | Fast and secure transactions with a simple layout. |
 | U-004 | Avinash Gharat | aterus***@gmail.com | `GBA7SL...RJTGI` | I like the ui it is good. |
 | U-005 | Namrata | kolina***@gmail.com | `GC3C7B...U2PVB` | I like the receipt feature. |
-| U-006 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
-| U-007 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
+| U-006 | Olaleye Olajide | olal*******@gmail.com | `...` | The analytics is awesome |
+| U-007 | Muhammad Dzakwan Najmi | repm*****@gmail.com | `...` | The non-custodial approach combined with crowdfunding is a strong combo — being able to do trustless transfers and pool funding on-chain without giving up custody of my assets feels like a genuine upgrade over typical centralized crowdfunding platforms. |
 | U-008 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
 | U-009 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
 | U-010 | [Pending User] | *Pending Response* | `...` | *Pending Response* |
