@@ -16,7 +16,7 @@
     "lint": "eslint .",
     "build": "tsup",
     "dev": "tsup --watch",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
