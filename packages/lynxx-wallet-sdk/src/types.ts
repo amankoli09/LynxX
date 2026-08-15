@@ -19,6 +19,11 @@ export interface LynxxConfig {
   network?: LynxxNetwork;
 }
 
+export interface SendXLMResult {
+  hash: string;
+  success: boolean;
+}
+
 /** A transaction envelope, either as an XDR string or a parsed stellar-sdk object. */
 export type TransactionLike = Transaction | FeeBumpTransaction | string;
 

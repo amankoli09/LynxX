@@ -1,7 +1,8 @@
 import { StellarWalletsKit, Networks } from "@creit.tech/stellar-wallets-kit";
 import { defaultModules } from "@creit.tech/stellar-wallets-kit/modules/utils";
-import type { LynxxConfig, LynxxNetwork } from "./types";
-import { LynxxWalletError } from "./errors";
+import { Horizon, TransactionBuilder, Operation, Asset } from "@stellar/stellar-sdk";
+import type { LynxxConfig, LynxxNetwork, SendXLMResult } from "./types";
+import { LynxxWalletError, mapWalletError } from "./errors";
 
 const NETWORK_PASSPHRASES: Record<LynxxNetwork, Networks> = {
   TESTNET: Networks.TESTNET,
@@ -110,6 +111,62 @@ export class LynxxWalletProvider {
           : "Transaction signing was rejected.",
         "SigningRejected",
       );
+    }
+  }
+
+  /**
+   * Sends XLM to a given address.
+   *
+   * @param to - The destination Stellar public key.
+   * @param amount - The amount of XLM to send (as a string).
+   * @returns An object containing the transaction hash and a success boolean.
+   * @throws {@link LynxxWalletError} if the transaction fails to build, sign, or submit.
+   */
+  async sendXLM(to: string, amount: string): Promise<SendXLMResult> {
+    if (!this.address) {
+      throw new LynxxWalletError(
+        "No wallet connected. Call connect() before sendXLM().",
+        "NotConnected",
+      );
+    }
+
+    try {
+      const serverUrl =
+        this.networkPassphrase === Networks.PUBLIC
+          ? "https://horizon.stellar.org"
+          : "https://horizon-testnet.stellar.org";
+      const server = new Horizon.Server(serverUrl);
+
+      const account = await server.loadAccount(this.address);
+      const fee = await server.fetchBaseFee();
+
+      const transaction = new TransactionBuilder(account, {
+        fee: fee.toString(),
+        networkPassphrase: this.networkPassphrase,
+      })
+        .addOperation(
+          Operation.payment({
+            destination: to,
+            asset: Asset.native(),
+            amount: amount,
+          })
+        )
+        .setTimeout(300)
+        .build();
+
+      const signedXdr = await this.signTransaction(transaction.toXDR());
+      const signedTx = TransactionBuilder.fromXDR(
+        signedXdr,
+        this.networkPassphrase,
+      );
+      const result = await server.submitTransaction(signedTx);
+
+      return {
+        hash: result.hash,
+        success: result.successful,
+      };
+    } catch (error) {
+      throw mapWalletError(error, "Failed to send XLM.");
     }
   }
 
