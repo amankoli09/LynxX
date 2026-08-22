@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { getCampaign } from "./Fund";
 import { Wallet, Users, Target, Flag } from "lucide-react";
+import { notifyCampaignGoalReached } from "../lib/notifications";
 
 /* ── Animated number helper ── */
 function AnimNum({ value, decimals = 0, suffix = "" }) {
@@ -34,6 +35,11 @@ export default function Analytics() {
             const data = await getCampaign();
             setStats({ raisedXlm: data.raisedXlm, donors: data.donors, closed: data.closed, loading: false, error: false });
             setLastRefresh(new Date());
+
+            // Trigger notification if goal is met / campaign is closed
+            if (data?.closed) {
+                notifyCampaignGoalReached("main_campaign");
+            }
         } catch {
             setStats(s => ({ ...s, loading: false, error: true }));
         }
@@ -158,10 +164,9 @@ export default function Analytics() {
                             <span>Goal: {GOAL_XLM} XLM</span>
                         </div>
                     </div>
-
                 </>
             )}
-        </div>
+            </div>
         </div>
     );
 }
