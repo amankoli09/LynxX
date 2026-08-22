@@ -10,6 +10,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { requestNotificationPermission } from "../lib/notifications";
 
 // ── Always-needed components (loaded eagerly) ──
 import Reveal from "./Reveal";
@@ -218,6 +219,9 @@ function Header() {
             // Show a friendly in-app modal instead of a raw alert. Missing
             // wallet → offer the install link; anything else → explain & retry.
             
+            // Request browser push notification permission
+            await requestNotificationPermission();
+
             let errorMessage = e?.message || "Failed to connect wallet. Please try again.";
             if (errorMessage.toLowerCase().includes("closed the modal") || errorMessage.toLowerCase().includes("user rejected")) {
                 errorMessage = "Connection request was cancelled securely. Please try again when you are ready.";

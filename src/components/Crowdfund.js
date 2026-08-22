@@ -11,6 +11,7 @@ import {
     FundError,
     getBadgeTier,
 } from "./Fund";
+import { notifyCampaignGoalReached } from "../lib/notifications";
 
 const short = (a) => (a ? `${a.slice(0, 4)}…${a.slice(-4)}` : "");
 const fmt = (n) => Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 });
@@ -32,21 +33,27 @@ export default function Crowdfund({ address = null, onDonated }) {
     const mounted = useRef(true);
 
     const refresh = useCallback(async () => {
-        try {
-            const [c, r] = await Promise.all([getCampaign(), getRecentDonations()]);
-            if (!mounted.current) return null;
-            setCampaign(c);
-            setRecent(r);
-            if (address) {
-                setMine(await getMyContribution(address));
-                setBadgeTier(await getBadgeTier(address));
-            }
-            return c;
-        } catch (e) {
-            console.warn("campaign refresh failed:", e);
-            return null;
+    try {
+        const [c, r] = await Promise.all([getCampaign(), getRecentDonations()]);
+        if (!mounted.current) return null;
+        setCampaign(c);
+        setRecent(r);
+        if (address) {
+            setMine(await getMyContribution(address));
+            setBadgeTier(await getBadgeTier(address));
         }
-    }, [address]);
+
+        // Trigger goal notification if closed
+        if (c?.closed) {
+            notifyCampaignGoalReached("main_campaign");
+        }
+
+        return c;
+    } catch (e) {
+        console.warn("campaign refresh failed:", e);
+        return null;
+    }
+}, [address]);
 
     // Initial load + real-time polling (state synchronization).
     useEffect(() => {
