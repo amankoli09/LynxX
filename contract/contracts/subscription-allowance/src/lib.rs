@@ -223,8 +223,8 @@ mod test {
         let token = Address::generate(&env);
         let user = Address::generate(&env);
         let merchant = Address::generate(&env);
-        let min_amount = 100;
-        let max_interval = 2592000;
+        let min_amount: i128 = 100;
+        let max_interval: u64 = 2592000;
 
         let contract_id = env.register(
             SubscriptionAllowanceContract,
@@ -250,17 +250,17 @@ mod test {
     }
 
     #[test]
-    #[should_panic(expected = "AmountTooLow")]
     fn test_set_allowance_invalid_amount() {
         let (_env, _token, user, merchant, client) = setup();
-        client.set_allowance(&user, &merchant, &50, &86400);
+        let result = client.try_set_allowance(&user, &merchant, &50, &86400);
+        assert_eq!(result, Err(Ok(ContractError::AmountTooLow)));
     }
 
     #[test]
-    #[should_panic(expected = "IntervalTooLong")]
     fn test_set_allowance_invalid_interval() {
         let (_env, _token, user, merchant, client) = setup();
-        client.set_allowance(&user, &merchant, &500, &5184000);
+        let result = client.try_set_allowance(&user, &merchant, &500, &5184000);
+        assert_eq!(result, Err(Ok(ContractError::IntervalTooLong)));
     }
 
     #[test]
@@ -315,9 +315,9 @@ mod test {
     }
 
     #[test]
-    #[should_panic(expected = "AllowanceNotFound")]
     fn test_merchant_cannot_pull_without_allowance() {
-        let (_env, _token, _user, merchant, client) = setup();
-        client.execute_pull(&merchant, &_user);
+        let (_env, _token, user, merchant, client) = setup();
+        let result = client.try_execute_pull(&merchant, &user);
+        assert_eq!(result, Err(Ok(ContractError::AllowanceNotFound)));
     }
 }
