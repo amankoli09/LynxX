@@ -100,7 +100,11 @@ impl EscrowContract {
 
         let token: Address = s.get(&DataKey::Token).unwrap();
         let amount: i128 = s.get(&DataKey::Amount).unwrap();
-        token::Client::new(&env, &token).transfer(&sender, &env.current_contract_address(), &amount);
+        token::Client::new(&env, &token).transfer(
+            &sender,
+            &env.current_contract_address(),
+            &amount,
+        );
 
         s.set(&DataKey::Status, &Status::Locked);
 
@@ -169,11 +173,7 @@ impl EscrowContract {
 
         s.set(&DataKey::Status, &Status::Refunded);
 
-        RefundedEvent {
-            to: sender,
-            amount,
-        }
-        .publish(&env);
+        RefundedEvent { to: sender, amount }.publish(&env);
         Ok(Status::Refunded)
     }
 

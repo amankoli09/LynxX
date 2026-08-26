@@ -9,7 +9,14 @@ fn create_token<'a>(e: &Env, admin: &Address) -> (Address, token::StellarAssetCl
     (addr.clone(), token::StellarAssetClient::new(e, &addr))
 }
 
-fn setup<'a>() -> (Env, Address, Address, Address, i128, EscrowContractClient<'a>) {
+fn setup<'a>() -> (
+    Env,
+    Address,
+    Address,
+    Address,
+    i128,
+    EscrowContractClient<'a>,
+) {
     let env = Env::default();
     env.mock_all_auths();
 
