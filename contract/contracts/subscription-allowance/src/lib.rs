@@ -1,8 +1,6 @@
 #![no_std]
 
-use soroban_sdk::{
-    contract, contractimpl, contracttype, contracterror, Address, Env, token,
-};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, token, Address, Env};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -40,15 +38,14 @@ pub struct SubscriptionAllowanceContract;
 
 #[contractimpl]
 impl SubscriptionAllowanceContract {
-    pub fn __constructor(
-        env: Env,
-        token: Address,
-        min_amount: i128,
-        max_interval: u64,
-    ) {
+    pub fn __constructor(env: Env, token: Address, min_amount: i128, max_interval: u64) {
         env.storage().instance().set(&DataKey::Token, &token);
-        env.storage().instance().set(&DataKey::MinAmount, &min_amount);
-        env.storage().instance().set(&DataKey::MaxInterval, &max_interval);
+        env.storage()
+            .instance()
+            .set(&DataKey::MinAmount, &min_amount);
+        env.storage()
+            .instance()
+            .set(&DataKey::MaxInterval, &max_interval);
     }
 
     pub fn set_allowance(
@@ -60,8 +57,16 @@ impl SubscriptionAllowanceContract {
     ) -> Result<Allowance, ContractError> {
         user.require_auth();
 
-        let min_amount: i128 = env.storage().instance().get(&DataKey::MinAmount).unwrap_or(0);
-        let max_interval: u64 = env.storage().instance().get(&DataKey::MaxInterval).unwrap_or(2592000);
+        let min_amount: i128 = env
+            .storage()
+            .instance()
+            .get(&DataKey::MinAmount)
+            .unwrap_or(0);
+        let max_interval: u64 = env
+            .storage()
+            .instance()
+            .get(&DataKey::MaxInterval)
+            .unwrap_or(2592000);
 
         if amount < min_amount {
             return Err(ContractError::AmountTooLow);
@@ -86,15 +91,12 @@ impl SubscriptionAllowanceContract {
         Ok(allowance)
     }
 
-    pub fn execute_pull(
-        env: Env,
-        merchant: Address,
-        user: Address,
-    ) -> Result<i128, ContractError> {
+    pub fn execute_pull(env: Env, merchant: Address, user: Address) -> Result<i128, ContractError> {
         merchant.require_auth();
 
         let key = DataKey::Allowance(user.clone(), merchant.clone());
-        let mut allowance: Allowance = env.storage()
+        let mut allowance: Allowance = env
+            .storage()
             .instance()
             .get(&key)
             .ok_or(ContractError::AllowanceNotFound)?;
@@ -113,7 +115,8 @@ impl SubscriptionAllowanceContract {
             return Err(ContractError::TimeIntervalNotElapsed);
         }
 
-        let token_address: Address = env.storage()
+        let token_address: Address = env
+            .storage()
             .instance()
             .get(&DataKey::Token)
             .ok_or(ContractError::TransferFailed)?;
@@ -148,7 +151,8 @@ impl SubscriptionAllowanceContract {
         user.require_auth();
 
         let key = DataKey::Allowance(user.clone(), merchant.clone());
-        let mut allowance: Allowance = env.storage()
+        let mut allowance: Allowance = env
+            .storage()
             .instance()
             .get(&key)
             .ok_or(ContractError::AllowanceNotFound)?;
@@ -165,7 +169,8 @@ impl SubscriptionAllowanceContract {
         merchant: Address,
     ) -> Result<u64, ContractError> {
         let key = DataKey::Allowance(user, merchant);
-        let allowance: Allowance = env.storage()
+        let allowance: Allowance = env
+            .storage()
             .instance()
             .get(&key)
             .ok_or(ContractError::AllowanceNotFound)?;
@@ -188,7 +193,8 @@ impl SubscriptionAllowanceContract {
         user.require_auth();
 
         let key = DataKey::Allowance(user, merchant);
-        let _allowance: Allowance = env.storage()
+        let _allowance: Allowance = env
+            .storage()
             .instance()
             .get(&key)
             .ok_or(ContractError::AllowanceNotFound)?;
@@ -204,15 +210,21 @@ mod test {
     use super::*;
     use soroban_sdk::{testutils::Address as _, Env};
 
-    fn setup() -> (Env, Address, Address, Address, SubscriptionAllowanceContractClient<'static>) {
+    fn setup() -> (
+        Env,
+        Address,
+        Address,
+        Address,
+        SubscriptionAllowanceContractClient<'static>,
+    ) {
         let env = Env::default();
         env.mock_all_auths();
 
         let token = Address::generate(&env);
         let user = Address::generate(&env);
         let merchant = Address::generate(&env);
-        let min_amount = 100;
-        let max_interval = 2592000;
+        let min_amount: i128 = 100;
+        let max_interval: u64 = 2592000;
 
         let contract_id = env.register(
             SubscriptionAllowanceContract,
@@ -238,17 +250,17 @@ mod test {
     }
 
     #[test]
-    #[should_panic(expected = "AmountTooLow")]
     fn test_set_allowance_invalid_amount() {
         let (_env, _token, user, merchant, client) = setup();
-        client.set_allowance(&user, &merchant, &50, &86400);
+        let result = client.try_set_allowance(&user, &merchant, &50, &86400);
+        assert_eq!(result, Err(Ok(ContractError::AmountTooLow)));
     }
 
     #[test]
-    #[should_panic(expected = "IntervalTooLong")]
     fn test_set_allowance_invalid_interval() {
         let (_env, _token, user, merchant, client) = setup();
-        client.set_allowance(&user, &merchant, &500, &5184000);
+        let result = client.try_set_allowance(&user, &merchant, &500, &5184000);
+        assert_eq!(result, Err(Ok(ContractError::IntervalTooLong)));
     }
 
     #[test]
@@ -303,9 +315,9 @@ mod test {
     }
 
     #[test]
-    #[should_panic(expected = "AllowanceNotFound")]
     fn test_merchant_cannot_pull_without_allowance() {
-        let (_env, _token, _user, merchant, client) = setup();
-        client.execute_pull(&merchant, &_user);
+        let (_env, _token, user, merchant, client) = setup();
+        let result = client.try_execute_pull(&merchant, &user);
+        assert_eq!(result, Err(Ok(ContractError::AllowanceNotFound)));
     }
 }

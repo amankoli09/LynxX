@@ -9,4 +9,12 @@ members = [
 resolver = "2"
 
 [workspace.dependencies]
-soroban-sdk = { version = "21.0.0", features = ["alloc"] }
+soroban-sdk = { version = "23.0.0", features = ["alloc"] }
+
+[profile.release]
+opt-level = "z"
+overflow-checks = true
+debug = 0
+lto = true
+panic = "abort"
+codegen-units = 1
