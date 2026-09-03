@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Keypair, Account } from "@stellar/stellar-sdk";
+import { Keypair, Account, Horizon } from "@stellar/stellar-sdk";
 
 const authModal = vi.fn();
 const signTransaction = vi.fn();
@@ -44,6 +44,7 @@ describe("LynxxWalletProvider", () => {
     loadAccount.mockReset();
     fetchBaseFee.mockReset();
     submitTransaction.mockReset();
+    vi.mocked(Horizon.Server).mockClear();
   });
 
   it("connects and stores the address", async () => {
@@ -109,6 +110,94 @@ describe("LynxxWalletProvider", () => {
 
     expect(provider.getAddress()).toBeNull();
     expect(provider.isConnected()).toBe(false);
+  });
+
+  describe("getBalance", () => {
+    it("throws NotConnected if wallet is not connected", async () => {
+      const provider = new LynxxWalletProvider();
+      await expect(provider.getBalance()).rejects.toMatchObject({
+        code: "NotConnected",
+      });
+    });
+
+    it("successfully retrieves native XLM balance on Testnet", async () => {
+      const address = Keypair.random().publicKey();
+      authModal.mockResolvedValue({ address });
+      const provider = new LynxxWalletProvider({ network: "TESTNET" });
+      await provider.connect();
+
+      loadAccount.mockResolvedValue({
+        balances: [
+          {
+            asset_type: "credit_alphanum4",
+            asset_code: "USDC",
+            balance: "100.0000000",
+          },
+          { asset_type: "native", balance: "42.5000000" },
+        ],
+      });
+
+      const balance = await provider.getBalance();
+
+      expect(loadAccount).toHaveBeenCalledWith(address);
+      expect(Horizon.Server).toHaveBeenCalledWith(
+        "https://horizon-testnet.stellar.org",
+      );
+      expect(balance).toBe("42.5000000");
+    });
+
+    it("successfully retrieves native XLM balance on Mainnet", async () => {
+      const address = Keypair.random().publicKey();
+      authModal.mockResolvedValue({ address });
+      const provider = new LynxxWalletProvider({ network: "PUBLIC" });
+      await provider.connect();
+
+      loadAccount.mockResolvedValue({
+        balances: [{ asset_type: "native", balance: "1000.1234567" }],
+      });
+
+      const balance = await provider.getBalance();
+
+      expect(loadAccount).toHaveBeenCalledWith(address);
+      expect(Horizon.Server).toHaveBeenCalledWith(
+        "https://horizon.stellar.org",
+      );
+      expect(balance).toBe("1000.1234567");
+    });
+
+    it("throws LynxxWalletError when Horizon loadAccount fails", async () => {
+      const address = Keypair.random().publicKey();
+      authModal.mockResolvedValue({ address });
+      const provider = new LynxxWalletProvider();
+      await provider.connect();
+
+      loadAccount.mockRejectedValue(new Error("Account not found"));
+
+      await expect(provider.getBalance()).rejects.toMatchObject({
+        code: "WALLET_REQUEST_FAILED",
+      });
+    });
+
+    it("throws LynxxWalletError if native balance is missing", async () => {
+      const address = Keypair.random().publicKey();
+      authModal.mockResolvedValue({ address });
+      const provider = new LynxxWalletProvider();
+      await provider.connect();
+
+      loadAccount.mockResolvedValue({
+        balances: [
+          {
+            asset_type: "credit_alphanum4",
+            asset_code: "USDC",
+            balance: "100.0000000",
+          },
+        ],
+      });
+
+      await expect(provider.getBalance()).rejects.toMatchObject({
+        code: "BalanceNotFound",
+      });
+    });
   });
 
   describe("sendXLM", () => {
