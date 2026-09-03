@@ -115,6 +115,48 @@ export class LynxxWalletProvider {
   }
 
   /**
+   * Fetches the connected wallet's native XLM balance from Horizon.
+   *
+   * @returns The native XLM balance as a string (e.g. `"42.5000000"`).
+   * @throws {@link LynxxWalletError} `"NotConnected"` if {@link connect} has
+   * not been called yet, or with code `"WALLET_REQUEST_FAILED"` if the Horizon
+   * request fails.
+   *
+   * @example
+   * ```ts
+   * const balance = await wallet.getBalance();
+   * console.log(`Balance: ${balance} XLM`);
+   * ```
+   */
+  async getBalance(): Promise<string> {
+    if (!this.address) {
+      throw new LynxxWalletError(
+        "No wallet connected. Call connect() before getBalance().",
+        "NotConnected",
+      );
+    }
+
+    try {
+      const server = this.getHorizonServer();
+      const account = await server.loadAccount(this.address);
+      const nativeBalance = account.balances.find(
+        (b) => b.asset_type === "native",
+      );
+
+      if (!nativeBalance) {
+        throw new LynxxWalletError(
+          "Native XLM balance not found for account.",
+          "BalanceNotFound",
+        );
+      }
+
+      return nativeBalance.balance;
+    } catch (error) {
+      throw mapWalletError(error, "Failed to fetch balance.");
+    }
+  }
+
+  /**
    * Sends XLM to a given address.
    *
    * @param to - The destination Stellar public key.
@@ -131,11 +173,7 @@ export class LynxxWalletProvider {
     }
 
     try {
-      const serverUrl =
-        this.networkPassphrase === Networks.PUBLIC
-          ? "https://horizon.stellar.org"
-          : "https://horizon-testnet.stellar.org";
-      const server = new Horizon.Server(serverUrl);
+      const server = this.getHorizonServer();
 
       const account = await server.loadAccount(this.address);
       const fee = await server.fetchBaseFee();
@@ -191,5 +229,13 @@ export class LynxxWalletProvider {
    */
   disconnect(): void {
     this.address = null;
+  }
+
+  private getHorizonServer(): Horizon.Server {
+    const serverUrl =
+      this.networkPassphrase === Networks.PUBLIC
+        ? "https://horizon.stellar.org"
+        : "https://horizon-testnet.stellar.org";
+    return new Horizon.Server(serverUrl);
   }
 }
